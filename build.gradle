@@ -1,0 +1,93 @@
+apply plugin: 'com.github.ben-manes.versions'
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+ext {
+    // Version name will be versionMajor.versionMinor.versionPatch
+    versionMajor = 1
+    versionMinor = 0
+    versionPatch = 0
+}
+
+buildscript {
+    apply from: "$rootDir/dependencies.gradle"
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+    dependencies {
+        classpath libs.gradle.plugin.android
+        classpath libs.gradle.plugin.kotlin
+        classpath libs.gradle.plugin.ktlint
+        classpath libs.gradle.plugin.gradleversions
+        classpath libs.gradle.plugin.detekt
+    }
+}
+
+subprojects {
+    apply plugin: 'org.jlleitschuh.gradle.ktlint'
+
+    ktlint {
+        android = true
+        outputToConsole = true
+    }
+
+    // Detekt (Kotlin static analyser)
+    apply plugin: 'io.gitlab.arturbosch.detekt'
+    detekt {
+        allRules = true // Include all rules
+        buildUponDefaultConfig = true // preconfigure defaults (see the rule set file below for explanations)
+        config = files("${project.rootDir}/config/detekt/detekt-config.yaml") // point to your custom config defining rules to run, overwriting default behavior
+
+        reports {
+            html.enabled = true // Create a HTML report
+            xml.enabled = false // XML report not needed
+            txt.enabled = false // txt report not needed
+        }
+    }
+    tasks.detekt.jvmTarget = "1.8"
+    afterEvaluate {
+        // Make sure detekt is executed with all the other linters for all modules
+        check.dependsOn 'detekt'
+    }
+
+    def GROUP_VERIFICATION_TASKS = 'Verification'
+    task checkCode(dependsOn: ['detekt', 'ktlintCheck'])
+    checkCode.group = GROUP_VERIFICATION_TASKS
+    checkCode.description = "Run detekt and ktlint"
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+// Don't show non stable updates for current stable versions
+def isNonStable = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { keyword -> version.toUpperCase().contains(keyword) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+}
+
+dependencyUpdates {
+    checkForGradleUpdate = true
+
+    resolutionStrategy {
+        componentSelection {
+            all {
+                if (isNonStable(candidate.version) && !isNonStable(currentVersion)) {
+                    reject('Release candidate')
+                }
+            }
+        }
+    }
+}
+
+

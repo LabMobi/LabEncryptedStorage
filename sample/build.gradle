@@ -1,0 +1,41 @@
+repositories {
+    google()
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+android {
+    namespace "mobi.lab.labencryptedstorage.sample"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        compileSdkVersion libs.versions.android.sdk.compile.get()
+        targetSdkVersion libs.versions.android.sdk.target.get()
+        minSdkVersion libs.versions.android.sdk.min.get()
+        applicationId 'mobi.lab.labencryptedstorage.sample'
+        versionName = '0.0.1'
+        versionCode = 1
+    }
+
+    testOptions.unitTests.all {
+        testLogging {
+            events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+            // Always show output even if the result has not changed
+            outputs.upToDateWhen { false }
+            // Show standard stream outputs if used
+            showStandardStreams = true
+        }
+    }
+}
+
+
+dependencies {
+    implementation libs.kotlin
+    implementation libs.androidx.appcompat
+    implementation project(':labencryptedstorage')
+}

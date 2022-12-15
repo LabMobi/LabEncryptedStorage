@@ -1,0 +1,60 @@
+repositories {
+    google()
+    mavenCentral()
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+
+android {
+    namespace "mobi.lab.labencryptedstorage"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        compileSdkVersion libs.versions.android.sdk.compile.get()
+        targetSdkVersion libs.versions.android.sdk.target.get()
+        minSdkVersion libs.versions.android.sdk.min.get()
+        version "$versionMajor.$versionMinor.$versionPatch"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    android.libraryVariants.all { variant ->
+        variant.outputs.all { output ->
+            if (outputFileName.endsWith('.aar')) {
+                outputFileName = "${archivesBaseName}-${version}-${variant.buildType.name}.aar"
+            }
+        }
+    }
+
+    testOptions.unitTests.all {
+        testLogging {
+            events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+            // Always show output even if the result has not changed
+            outputs.upToDateWhen { false }
+            // Show standard stream outputs if used
+            showStandardStreams = true
+        }
+    }
+}
+
+dependencies {
+    deps.addUnitTestDependencies(it)
+    deps.addInstrumentationTestDependencies(it)
+
+    implementation libs.kotlin
+    implementation libs.androidx.appcompat
+}
+
+def GROUP_CI_BUILD_TASKS = 'Build'
+task buildAll(dependsOn: [
+        'clean',
+        ':sample:build',
+        'build'
+])
+buildAll.group = GROUP_CI_BUILD_TASKS
+buildAll.description = 'Build the library and the sample application'
+build.mustRunAfter clean

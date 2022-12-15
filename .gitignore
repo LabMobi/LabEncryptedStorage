@@ -1,0 +1,29 @@
+# ignore vim swap files
+*.swp
+# ignore test files
+TEST-*.xml
+
+# ignore eclipse .settings files
+.settings/
+.project
+.classpath
+
+# ignore idea files
+*.iml
+.idea/
+
+# ignore mac stuff Mac
+.DS_Store
+
+# ignore eclipse/idea/ant/maven/gradle output
+bin/
+local.properties
+build/
+gen/
+classes
+.idea/
+.gradle
+out/
+target
+captures/
+

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- All Lint rules are in the primary module build.gradle file -->
+</lint>
