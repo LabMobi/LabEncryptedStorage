@@ -73,6 +73,6 @@ NOTE: This skips the Android Lint as that takes a long time to run and rarely ha
 
 Email: [hello@lab.mobi](mailto:hello@lab.mobi)
 
-Web: https://lab.mobi/
-
 Twitter: https://mobile.twitter.com/LabMobi
+
+Web: https://lab.mobi/
