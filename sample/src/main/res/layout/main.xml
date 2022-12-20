@@ -13,6 +13,7 @@
         android:paddingBottom="32dp">
 
         <TextView
+            android:id="@+id/text_impl_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"

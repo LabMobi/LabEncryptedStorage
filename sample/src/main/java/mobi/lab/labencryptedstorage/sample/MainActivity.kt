@@ -1,17 +1,15 @@
 package mobi.lab.labencryptedstorage.sample
 
 import android.os.Bundle
-import android.widget.Toast
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import mobi.lab.labencryptedstorage.SampleClass
+import mobi.lab.labencryptedstorage.LabEncryptedStorageManager
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main)
-
-        // Use our library here
-        Toast.makeText(this, SampleClass().foo(), Toast.LENGTH_LONG).show()
+        findViewById<TextView>(R.id.text_impl_name).text = LabEncryptedStorageManager.getLastSelectedStorageImplOrSelectOneNow(this).toString()
     }
 }
