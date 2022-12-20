@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_store_generic_1">Unable to store the value to device storage. Check if there is space on the disk.</string>
+    <string name="error_delete_generic_1">Unable to remove a value from device storage. Check if there is space on the disk.</string>
+</resources>

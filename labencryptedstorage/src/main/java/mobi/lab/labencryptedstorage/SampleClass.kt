@@ -1,8 +1,8 @@
 package mobi.lab.labencryptedstorage
 
-class SampleClass {
+public class SampleClass {
     @Suppress("FunctionOnlyReturningConstant")
-    fun foo(): String {
+    public fun foo(): String {
         return "Foo"
     }
 }

@@ -39,6 +39,14 @@ android {
             showStandardStreams = true
         }
     }
+
+    kotlinOptions {
+        // For Kotlin API strict mode.
+        // In the future we should be able to do it easier.
+        // When https://youtrack.jetbrains.com/issue/KT-37652 is fixed
+        // then we can use the module annotation to enable this instead of the compiler flag.
+        freeCompilerArgs += '-Xexplicit-api=strict'
+    }
 }
 
 dependencies {
@@ -47,6 +55,8 @@ dependencies {
 
     implementation libs.kotlin
     implementation libs.androidx.appcompat
+    implementation libs.gson
+    implementation libs.androidx.security.crypto
 }
 
 def GROUP_CI_BUILD_TASKS = 'Build'
