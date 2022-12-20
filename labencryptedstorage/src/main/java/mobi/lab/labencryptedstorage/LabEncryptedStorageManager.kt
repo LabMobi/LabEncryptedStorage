@@ -114,7 +114,7 @@ public object LabEncryptedStorageManager : LabEncryptedStorageManagerInterface {
             Log.d(
                 "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Testing encryptedStorage .."
             )
-            storageOpDeviceCompatibilityTester.runTest(getEncryptedStorageOp(applicationContext))
+            storageOpDeviceCompatibilityTester.runTest(applicationContext, getEncryptedStorageOp(applicationContext))
             Log.d(
                 "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Testing success!"
             )
