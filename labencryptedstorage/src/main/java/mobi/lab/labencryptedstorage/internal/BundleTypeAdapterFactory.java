@@ -1,4 +1,4 @@
-package mobi.lab.labencryptedstorage.util;
+package mobi.lab.labencryptedstorage.internal;
 /*
  * Copyright (C) 2015 Gson Type Adapter Authors.
  *

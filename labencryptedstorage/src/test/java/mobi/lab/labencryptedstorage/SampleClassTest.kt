@@ -3,10 +3,10 @@ package mobi.lab.labencryptedstorage
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class SampleClassTest {
+public class SampleClassTest {
 
     @Test
-    fun testSampleClass() {
+    public fun testSampleClass() {
         assertEquals("Foo", SampleClass().foo())
     }
 }

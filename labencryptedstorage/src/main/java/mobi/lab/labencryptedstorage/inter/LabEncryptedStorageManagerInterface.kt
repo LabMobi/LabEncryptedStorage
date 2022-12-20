@@ -1,0 +1,3 @@
+package mobi.lab.labencryptedstorage.inter
+
+public interface LabEncryptedStorageManagerInterface

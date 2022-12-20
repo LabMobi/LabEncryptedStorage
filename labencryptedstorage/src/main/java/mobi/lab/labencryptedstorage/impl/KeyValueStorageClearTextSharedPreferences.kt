@@ -11,7 +11,7 @@ import com.google.gson.JsonParseException
 import mobi.lab.labencryptedstorage.R
 import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
 import mobi.lab.labencryptedstorage.inter.KeyValueClearTextStorage
-import mobi.lab.labencryptedstorage.util.BundleTypeAdapterFactory
+import mobi.lab.labencryptedstorage.internal.BundleTypeAdapterFactory
 import java.lang.reflect.Type
 
 public class KeyValueStorageClearTextSharedPreferences constructor(private val appContext: Context) : KeyValueClearTextStorage {

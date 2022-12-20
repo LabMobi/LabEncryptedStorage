@@ -1,0 +1,5 @@
+package mobi.lab.labencryptedstorage
+
+import mobi.lab.labencryptedstorage.inter.LabEncryptedStorageManagerInterface
+
+public object LabEncryptedStorageManager : LabEncryptedStorageManagerInterface
