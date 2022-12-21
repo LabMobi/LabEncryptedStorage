@@ -92,6 +92,10 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(private val a
         }
     }
 
+    override fun getStorageTypeName(): String {
+        return "KeyValueStorageEncryptedSharedPreferences"
+    }
+
     private fun getEncryptedSharedPreferencesFor(tag: String): SharedPreferences {
         val masterKey: MasterKey = createOrGetMasterKey()
 

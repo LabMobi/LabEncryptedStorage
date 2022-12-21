@@ -34,4 +34,11 @@ public interface KeyValueStorage {
      */
     @Throws(KeyValueStorageException::class)
     public fun delete(key: String)
+
+    /**
+     * Get the storage type name.
+     *
+     * @return type name
+     */
+    public fun getStorageTypeName(): String
 }

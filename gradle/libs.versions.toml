@@ -8,6 +8,10 @@ kotlin = '1.7.20'
 
 [libraries]
 
+# RxJava
+rxjava = 'io.reactivex.rxjava3:rxjava:3.1.5'
+rxjava-android = 'io.reactivex.rxjava3:rxandroid:3.0.0'
+
 # Gradle plugin
 gradle-plugin-android = 'com.android.tools.build:gradle:7.3.1'
 gradle-plugin-kotlin = { module = 'org.jetbrains.kotlin:kotlin-gradle-plugin', version.ref = 'kotlin' }

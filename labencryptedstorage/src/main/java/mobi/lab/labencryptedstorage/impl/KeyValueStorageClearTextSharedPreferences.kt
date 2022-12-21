@@ -96,6 +96,10 @@ public class KeyValueStorageClearTextSharedPreferences constructor(private val a
         }
     }
 
+    override fun getStorageTypeName(): String {
+        return "KeyValueStorageClearTextSharedPreferences"
+    }
+
     private fun getSharedPrefsFor(tag: String): SharedPreferences {
         return appContext.getSharedPreferences(getStoragePrefix(tag), Context.MODE_PRIVATE)
     }

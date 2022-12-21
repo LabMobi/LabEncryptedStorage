@@ -243,10 +243,10 @@ public class LabEncryptedStorageManager(
          * Device info in the form of ["manufacturer1 model1","manufacturer2 model2"].
          * Default: none.
          *
-         * @param hardwareKeyStoreBasedStorageEncryptionBlocklist List of "manufacturer1 model1","manufacturer2 model2"
+         * @param deviceManufacturerAndModel List of "manufacturer1 model1","manufacturer2 model2"
          */
-        public fun hardwareKeyStoreBasedStorageEncryptionBlocklist(hardwareKeyStoreBasedStorageEncryptionBlocklist: List<String>): Builder =
-            apply { this.hardwareKeyStoreBasedStorageEncryptionBlocklist = hardwareKeyStoreBasedStorageEncryptionBlocklist }
+        public fun hardwareKeyStoreBasedStorageEncryptionBlocklist(vararg deviceManufacturerAndModel: String): Builder =
+            apply { this.hardwareKeyStoreBasedStorageEncryptionBlocklist + deviceManufacturerAndModel }
 
         /**
          * Implementation for the clear-text storage.

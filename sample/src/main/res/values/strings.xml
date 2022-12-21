@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">labencryptedstorage-sample</string>
+    <string name="btn_run_test">Run test</string>
+    <string name="state_press_the_button_to_run_the_test">Press the button to run the test</string>
+    <string name="state_testing">Testing ..</string>
 </resources>

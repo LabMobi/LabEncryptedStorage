@@ -15,6 +15,56 @@ Main benefits of `LabEncryptedStorage` over using Google's `SharedPreferences` d
 
 `LabEncryptedStorage` works on Android 5.0+ (API level 21+). But requires the Android `compileSdkVersion` to be set to `android-33`.
 
+## Usage
+
+Use the `LabEncryptedStorageManager.Builder` to get the manager instance:
+
+```kotlin
+// Create a manager via the builder
+val manager = with(LabEncryptedStorageManager.Builder(this)) {
+	// Configure if needed
+	// For example, allow hardware-key based encrypted storage
+	hardwareKeyStoreBasedStorageEncryptionEnabled(true)
+	// For example, add device that should not use encrypted storage ever
+	// First device
+	hardwareKeyStoreBasedStorageEncryptionBlocklist("Samsung FirstDevice")
+	// Add multiple
+	val blocklist = arrayOf("Google SomePixel", "Samsung SomeOtherDeviceModel")
+	hardwareKeyStoreBasedStorageEncryptionBlocklist(*blocklist)
+	// Build it
+	build()
+}
+```
+
+And then use the manager to select the storage implementation:
+
+```kotlin
+ // Get the best storage to be used
+ val storage: KeyValueStorage = manager.getOrSelectStorage()
+```
+
+This two things you only need to do once during app runtime. For example, in you dependency injection logic or Application object. After that you can use the `KeyValueStorage` instance multiple times.
+
+Now with the `KeyValueStorage` you can use the storage.
+
+```kotlin
+val key1 = "key1"
+val value1a = "value1"
+
+// Write a value
+storage.store(key1, value1a)
+
+// Read out the same value
+val value1b = storage.read<String>(key1, String::class.java)
+
+// Delete the value
+storage.delete(key1)
+```
+
+NOTE: Do not use it directly from UI thread.
+
+NOTE: If the storage operation fails then `KeyValueStorageException` will be thrown!
+
 ## Releases
 
 TODO: Maven Central artifact will be available soon.
