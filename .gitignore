@@ -26,4 +26,5 @@ classes
 out/
 target
 captures/
+publish.properties
 
