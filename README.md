@@ -48,7 +48,7 @@ This assumes 2 things:
 Full build can be done via:
 
 ```bash
-.\gradlew buildRelease
+.\gradlew buildAll
 ```
 
 This builds all variants and runs all linters.

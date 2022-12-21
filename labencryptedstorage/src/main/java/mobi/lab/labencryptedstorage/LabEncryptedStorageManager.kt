@@ -5,33 +5,49 @@ import android.os.Build
 import android.util.Log
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
+import mobi.lab.labencryptedstorage.LabEncryptedStorageManager.Builder
 import mobi.lab.labencryptedstorage.impl.KeyValueStorageClearTextSharedPreferences
 import mobi.lab.labencryptedstorage.impl.KeyValueStorageEncryptedSharedPreferences
+import mobi.lab.labencryptedstorage.impl.SimpleEncryptedStorageDeviceCompatibilityTester
 import mobi.lab.labencryptedstorage.inter.EncryptedStorageCompatibilityTester
+import mobi.lab.labencryptedstorage.inter.KeyValueClearTextStorage
+import mobi.lab.labencryptedstorage.inter.KeyValueEncryptedStorage
 import mobi.lab.labencryptedstorage.inter.KeyValueStorage
 import mobi.lab.labencryptedstorage.inter.LabEncryptedStorageManagerInterface
 import mobi.lab.labencryptedstorage.internal.exhaustive
 import java.io.IOException
 
-public object LabEncryptedStorageManager : LabEncryptedStorageManagerInterface {
-    private val selectionLock = Object()
+/**
+ * Storage manager instance.
+ * Use the builder [Builder] to configure the instance.
+ *
+ * @property applicationContext Context
+ * @property hardwareKeyStoreBasedStorageEncryptionEnabled if hardware key store based encryption is allowed.
+ * @property hardwareKeyStoreBasedStorageEncryptionBlocklist if there are any specific devices for which hardware
+ * key store based encryption should never be allowed.
+ * Device info in the form of ["manufacturer1 model1","manufacturer2 model2"].
+ * @property clearTextStorage Implementation for the clear-text storage.
+ * Used for fallbacks and remembering the selected storage.
+ * @property encryptedTextStorage Implementation for the encrypted  storage.
+ * Used if allowed and storageCompatibilityTester shows the device supports it.
+ * @property storageCompatibilityTester Implementation for tester to test if the encrypted storage works on this given device.
+ */
+public class LabEncryptedStorageManager(
+    private val applicationContext: Context,
+    private val hardwareKeyStoreBasedStorageEncryptionEnabled: Boolean,
+    private val hardwareKeyStoreBasedStorageEncryptionBlocklist: List<String>,
+    private val clearTextStorage: KeyValueClearTextStorage,
+    private val encryptedTextStorage: KeyValueEncryptedStorage,
+    private val storageCompatibilityTester: EncryptedStorageCompatibilityTester
+) : LabEncryptedStorageManagerInterface {
+    private val selectionLock = Any()
 
-    override fun getLastSelectedStorageImplOrSelectOneNow(
-        applicationContext: Context,
-        hardwareKeyStoreBasedStorageEncryptionEnabled: Boolean,
-        hardwareKeyStoreBasedStorageEncryptionBlacklist: List<String>,
-        storageOpDeviceCompatibilityTester: EncryptedStorageCompatibilityTester
-    ): KeyValueStorage {
+    override fun getOrSelectStorage(): KeyValueStorage {
         synchronized(selectionLock) {
-            var selectedImpl: KeyValueStorage? = getLastSelectedStorageImpl(applicationContext)
+            var selectedImpl: KeyValueStorage? = getLastSelectedStorageOrNullIfNoneSelectedYet()
             if (selectedImpl == null) {
                 Log.d("LabEncryptedStorageManager", "StorageConfigurationManagerImpl: No storage selected, finding and selecting one ..")
-                selectedImpl = findTheBestStorageImpl(
-                    applicationContext,
-                    hardwareKeyStoreBasedStorageEncryptionEnabled,
-                    hardwareKeyStoreBasedStorageEncryptionBlacklist,
-                    storageOpDeviceCompatibilityTester
-                )
+                selectedImpl = findTheBestStorageImpl()
                 Log.d("LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Selected \"${selectedImpl.toSelection()}\" for storage")
             } else {
                 Log.d(
@@ -39,41 +55,31 @@ public object LabEncryptedStorageManager : LabEncryptedStorageManagerInterface {
                     "StorageConfigurationManagerImpl: Storage already selected, using last selection \"${selectedImpl.toSelection()}\""
                 )
             }
-            setLastSelectedStorageImpl(applicationContext, selectedImpl)
+            setLastSelectedStorageImpl(selectedImpl)
             return selectedImpl
         }
     }
 
-    private fun findTheBestStorageImpl(
-        applicationContext: Context,
-        encryptionEnabled: Boolean,
-        deviceBlacklist: List<String>,
-        storageOpDeviceCompatibilityTester: EncryptedStorageCompatibilityTester
-    ): KeyValueStorage {
-        return if (shouldUseClearTextStorage(applicationContext, encryptionEnabled, deviceBlacklist, storageOpDeviceCompatibilityTester)) {
-            getClearTextStorageOp(applicationContext)
+    private fun findTheBestStorageImpl(): KeyValueStorage {
+        return if (shouldUseClearTextStorage()) {
+            getSuppliedClearTextStorageImplementation()
         } else {
-            getEncryptedStorageOp(applicationContext)
+            getSuppliedEncryptedStorageImplementation()
         }
     }
 
-    private fun shouldUseClearTextStorage(
-        applicationContext: Context,
-        encryptionEnabled: Boolean,
-        deviceBlacklist: List<String>,
-        storageOpDeviceCompatibilityTester: EncryptedStorageCompatibilityTester
-    ): Boolean {
-        return if (!encryptionEnabled) {
+    private fun shouldUseClearTextStorage(): Boolean {
+        return if (!hardwareKeyStoreBasedStorageEncryptionEnabled) {
             Log.d(
                 "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Caller disallows encrypted storage for all devices."
             )
             true
-        } else if (hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice(deviceBlacklist)) {
+        } else if (hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice()) {
             Log.d(
                 "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Caller disallows encrypted storage for this device."
             )
             true
-        } else if (!deviceSupportsEncryptedStorage(applicationContext, storageOpDeviceCompatibilityTester)) {
+        } else if (!deviceSupportsEncryptedStorage(storageCompatibilityTester)) {
             Log.d(
                 "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: This device doesn't support encrypted storage."
             )
@@ -86,12 +92,10 @@ public object LabEncryptedStorageManager : LabEncryptedStorageManagerInterface {
         }
     }
 
-    internal fun hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice(
-        hardwareKeyStoreBasedStorageEncryptionBlacklist: List<String>
-    ): Boolean {
+    private fun hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice(): Boolean {
         // Device info in the form of ["manufacturer1 model1","manufacturer2 model2"]
         val currentDeviceManufacturerModel = "${Build.MANUFACTURER} ${Build.MODEL}".lowercase()
-        for (deviceManufacturerModel in hardwareKeyStoreBasedStorageEncryptionBlacklist) {
+        for (deviceManufacturerModel in hardwareKeyStoreBasedStorageEncryptionBlocklist) {
             if (
                 deviceManufacturerModel.lowercase() == currentDeviceManufacturerModel ||
                 deviceManufacturerModel.lowercase().trim() == currentDeviceManufacturerModel
@@ -105,8 +109,7 @@ public object LabEncryptedStorageManager : LabEncryptedStorageManagerInterface {
         return false
     }
 
-    internal fun deviceSupportsEncryptedStorage(
-        applicationContext: Context,
+    private fun deviceSupportsEncryptedStorage(
         storageOpDeviceCompatibilityTester: EncryptedStorageCompatibilityTester
     ): Boolean {
         try {
@@ -114,7 +117,7 @@ public object LabEncryptedStorageManager : LabEncryptedStorageManagerInterface {
             Log.d(
                 "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Testing encryptedStorage .."
             )
-            storageOpDeviceCompatibilityTester.runTest(applicationContext, getEncryptedStorageOp(applicationContext))
+            storageOpDeviceCompatibilityTester.runTest(applicationContext, getSuppliedEncryptedStorageImplementation())
             Log.d(
                 "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Testing success!"
             )
@@ -133,45 +136,42 @@ public object LabEncryptedStorageManager : LabEncryptedStorageManagerInterface {
     /**
      * Return the storage impl that is used to store the last selected impl info.
      *
-     * @param applicationContext Context
      * @return StorageOp
      */
-    private fun getSelectionStorage(applicationContext: Context): KeyValueStorage {
+    private fun getSelectionStorage(): KeyValueStorage {
         // Always the clear-text one as this is the safest
-        return getClearTextStorageOp(applicationContext)
+        return getSuppliedClearTextStorageImplementation()
     }
 
     /**
      * Get the last selected storage implementation if any has been set.
      *
-     * @param applicationContext Context
      * @return StorageOp or null if non selected
      */
-    override fun getLastSelectedStorageImpl(applicationContext: Context): KeyValueStorage? {
-        val lastSelection = getSelectionStorage(applicationContext).read<StorageOpImplSelection?>(
+    override fun getLastSelectedStorageOrNullIfNoneSelectedYet(): KeyValueStorage? {
+        val lastSelection = getSelectionStorage().read<StorageOpImplSelection?>(
             LAST_STORAGE_IMPL_SELECTION_TAG,
             object : TypeToken<StorageOpImplSelection?>() {}.type
         )
         // Return null if lastSelection is null
-        return lastSelection?.toOpImpl(applicationContext)
+        return lastSelection?.toOpImpl()
     }
 
     /**
      * Remember the last selected storage implementation.
      *
-     * @param applicationContext Context
      * @param storageOp Selected StorageOp
      */
-    private fun setLastSelectedStorageImpl(applicationContext: Context, storageOp: KeyValueStorage) {
-        getSelectionStorage(applicationContext).store(LAST_STORAGE_IMPL_SELECTION_TAG, storageOp.toSelection())
+    private fun setLastSelectedStorageImpl(storageOp: KeyValueStorage) {
+        getSelectionStorage().store(LAST_STORAGE_IMPL_SELECTION_TAG, storageOp.toSelection())
     }
 
-    private fun getClearTextStorageOp(context: Context): KeyValueStorage {
-        return KeyValueStorageClearTextSharedPreferences(context)
+    public override fun getSuppliedClearTextStorageImplementation(): KeyValueClearTextStorage {
+        return clearTextStorage
     }
 
-    private fun getEncryptedStorageOp(context: Context): KeyValueStorage {
-        return KeyValueStorageEncryptedSharedPreferences(context)
+    public override fun getSuppliedEncryptedStorageImplementation(): KeyValueEncryptedStorage {
+        return encryptedTextStorage
     }
 
     private enum class StorageOpImplSelection {
@@ -197,10 +197,10 @@ public object LabEncryptedStorageManager : LabEncryptedStorageManagerInterface {
         };
     }
 
-    private fun StorageOpImplSelection.toOpImpl(context: Context): KeyValueStorage? {
+    private fun StorageOpImplSelection.toOpImpl(): KeyValueStorage? {
         return when (this) {
-            StorageOpImplSelection.STORAGE_OP_CLEAR_TEXT -> getClearTextStorageOp(context)
-            StorageOpImplSelection.STORAGE_OP_ENCRYPTED_TEE -> getEncryptedStorageOp(context)
+            StorageOpImplSelection.STORAGE_OP_CLEAR_TEXT -> getSuppliedClearTextStorageImplementation()
+            StorageOpImplSelection.STORAGE_OP_ENCRYPTED_TEE -> getSuppliedEncryptedStorageImplementation()
             StorageOpImplSelection.NONE -> null
         }.exhaustive
     }
@@ -215,5 +215,81 @@ public object LabEncryptedStorageManager : LabEncryptedStorageManagerInterface {
         }
     }
 
-    private const val LAST_STORAGE_IMPL_SELECTION_TAG: String = "LabEncryptedStorageManager.LAST_STORAGE_IMPL_SELECTION_TAG"
+    /**
+     * Builder class to create a [LabEncryptedStorageManager].
+     * @property applicationContext Android Application context
+     */
+    public data class Builder(
+        private val applicationContext: Context
+    ) {
+        private var hardwareKeyStoreBasedStorageEncryptionEnabled: Boolean = true
+        private var hardwareKeyStoreBasedStorageEncryptionBlocklist: List<String> = arrayListOf()
+        private var clearTextStorage: KeyValueClearTextStorage = KeyValueStorageClearTextSharedPreferences(applicationContext)
+        private var encryptedTextStorage: KeyValueEncryptedStorage = KeyValueStorageEncryptedSharedPreferences(applicationContext)
+        private var storageCompatibilityTester: EncryptedStorageCompatibilityTester = SimpleEncryptedStorageDeviceCompatibilityTester()
+
+        /**
+         * If hardware key store based encryption is allowed.
+         * Default: true
+         *
+         * @param hardwareKeyStoreBasedStorageEncryptionEnabled true/false
+         */
+        public fun hardwareKeyStoreBasedStorageEncryptionEnabled(hardwareKeyStoreBasedStorageEncryptionEnabled: Boolean): Builder =
+            apply { this.hardwareKeyStoreBasedStorageEncryptionEnabled = hardwareKeyStoreBasedStorageEncryptionEnabled }
+
+        /**
+         * If there are any specific devices for which hardware
+         * key store based encryption should never be allowed.
+         * Device info in the form of ["manufacturer1 model1","manufacturer2 model2"].
+         * Default: none.
+         *
+         * @param hardwareKeyStoreBasedStorageEncryptionBlocklist List of "manufacturer1 model1","manufacturer2 model2"
+         */
+        public fun hardwareKeyStoreBasedStorageEncryptionBlocklist(hardwareKeyStoreBasedStorageEncryptionBlocklist: List<String>): Builder =
+            apply { this.hardwareKeyStoreBasedStorageEncryptionBlocklist = hardwareKeyStoreBasedStorageEncryptionBlocklist }
+
+        /**
+         * Implementation for the clear-text storage.
+         * Used for fallbacks and remembering the selected storage.
+         * Default: [KeyValueStorageClearTextSharedPreferences].
+         *
+         * @param clearTextStorage Implementation for the clear-text storage.
+         */
+        public fun clearTextStorage(clearTextStorage: KeyValueClearTextStorage): Builder =
+            apply { this.clearTextStorage = clearTextStorage }
+
+        /**
+         * Implementation for the encrypted  storage.
+         * Used if allowed and storageCompatibilityTester shows the device supports it.
+         * Default: [KeyValueStorageEncryptedSharedPreferences].
+         *
+         * @param encryptedTextStorage Implementation for the encrypted  storage.
+         */
+        public fun encryptedTextStorage(encryptedTextStorage: KeyValueEncryptedStorage): Builder =
+            apply { this.encryptedTextStorage = encryptedTextStorage }
+
+        /**
+         * Implementation for tester to test if the encrypted storage works on this given device.
+         * Default: [SimpleEncryptedStorageDeviceCompatibilityTester].
+         * @param storageCompatibilityTester Implementation for tester to test if the encrypted storage works on this given device
+         */
+        public fun storageCompatibilityTester(storageCompatibilityTester: EncryptedStorageCompatibilityTester): Builder =
+            apply { this.storageCompatibilityTester = storageCompatibilityTester }
+
+        /**
+         * Build an instance of [LabEncryptedStorageManager].
+         */
+        public fun build(): LabEncryptedStorageManager = LabEncryptedStorageManager(
+            applicationContext.applicationContext,
+            hardwareKeyStoreBasedStorageEncryptionEnabled,
+            hardwareKeyStoreBasedStorageEncryptionBlocklist,
+            clearTextStorage,
+            encryptedTextStorage,
+            storageCompatibilityTester,
+        )
+    }
+
+    private companion object {
+        private const val LAST_STORAGE_IMPL_SELECTION_TAG: String = "LabEncryptedStorageManager.LAST_STORAGE_IMPL_SELECTION_TAG"
+    }
 }

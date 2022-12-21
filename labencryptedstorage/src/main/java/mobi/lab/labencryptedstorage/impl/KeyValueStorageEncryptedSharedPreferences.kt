@@ -15,6 +15,11 @@ import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
 import mobi.lab.labencryptedstorage.inter.KeyValueEncryptedStorage
 import java.lang.reflect.Type
 
+/**
+ * Android EncryptedSharedPreferences based implementation of [KeyValueEncryptedStorage].
+ *
+ * @property appContext Application context
+ */
 public class KeyValueStorageEncryptedSharedPreferences constructor(private val appContext: Context) : KeyValueEncryptedStorage {
 
     @SuppressLint("ApplySharedPref")
@@ -118,8 +123,8 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(private val a
         return GsonBuilder().create()
     }
 
-    public companion object {
-        public const val STORAGE_MASTER_KEY_ALIAS: String = "_tester_master_key_1"
-        public const val STORAGE_BASE_ID: String = "mobi.lab.labencryptedstorage_encrypted"
+    private companion object {
+        const val STORAGE_MASTER_KEY_ALIAS: String = "_tester_master_key_1"
+        const val STORAGE_BASE_ID: String = "mobi.lab.labencryptedstorage_encrypted"
     }
 }

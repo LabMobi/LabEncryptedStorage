@@ -14,6 +14,11 @@ import mobi.lab.labencryptedstorage.inter.KeyValueClearTextStorage
 import mobi.lab.labencryptedstorage.internal.BundleTypeAdapterFactory
 import java.lang.reflect.Type
 
+/**
+ * Android SharedPreferences based implementation of [KeyValueClearTextStorage].
+ *
+ * @property appContext Application context
+ */
 public class KeyValueStorageClearTextSharedPreferences constructor(private val appContext: Context) : KeyValueClearTextStorage {
     private val gson: Gson
 
@@ -109,7 +114,7 @@ public class KeyValueStorageClearTextSharedPreferences constructor(private val a
         return GsonBuilder().registerTypeAdapterFactory(BundleTypeAdapterFactory()).create()
     }
 
-    public companion object {
-        public const val STORAGE_BASE_ID: String = "mobi.lab.labencryptedstorage.clear_text"
+    private companion object {
+        private const val STORAGE_BASE_ID: String = "mobi.lab.labencryptedstorage.clear_text"
     }
 }

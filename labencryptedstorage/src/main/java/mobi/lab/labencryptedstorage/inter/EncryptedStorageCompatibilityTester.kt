@@ -4,7 +4,7 @@ import android.content.Context
 import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
 
 /**
- * Interface to test if encrypted storage works on a given device.
+ * Interface to test if a given [KeyValueStorage] works on a given device.
  */
 public interface EncryptedStorageCompatibilityTester {
     /**

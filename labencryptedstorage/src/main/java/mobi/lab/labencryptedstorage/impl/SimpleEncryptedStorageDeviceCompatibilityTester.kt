@@ -7,6 +7,10 @@ import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
 import mobi.lab.labencryptedstorage.inter.EncryptedStorageCompatibilityTester
 import mobi.lab.labencryptedstorage.inter.KeyValueStorage
 
+/**
+ * Tester to test if the provided [KeyValueStorage] works on a given device.
+ * Just writes two values, reads them, deletes them, attempts to read them again.
+ */
 public class SimpleEncryptedStorageDeviceCompatibilityTester : EncryptedStorageCompatibilityTester {
 
     @Suppress("MagicNumber")
