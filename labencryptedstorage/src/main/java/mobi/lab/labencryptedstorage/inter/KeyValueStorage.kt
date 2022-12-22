@@ -36,9 +36,16 @@ public interface KeyValueStorage {
     public fun delete(key: String)
 
     /**
-     * Get the storage type name.
+     * Get the storage name.
      *
-     * @return type name
+     * @return name
      */
-    public fun getStorageTypeName(): String
+    public fun getStorageName(): String
+
+    /**
+     * Unique id used to remember the storage choice.
+     *
+     * @return id
+     */
+    public fun getStorageId(): String
 }

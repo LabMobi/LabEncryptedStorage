@@ -10,17 +10,29 @@ import androidx.security.crypto.MasterKey
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
+import com.google.gson.TypeAdapterFactory
 import mobi.lab.labencryptedstorage.R
 import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
 import mobi.lab.labencryptedstorage.inter.KeyValueEncryptedStorage
+import mobi.lab.labencryptedstorage.internal.BundleTypeAdapterFactory
 import java.lang.reflect.Type
 
 /**
  * Android EncryptedSharedPreferences based implementation of [KeyValueEncryptedStorage].
  *
  * @property appContext Application context
+ * @property customGsonTypeAdapterFactories Custom Gson adapter factories to use during serialization and deserialization.
+ * By default uses [BundleTypeAdapterFactory].
  */
-public class KeyValueStorageEncryptedSharedPreferences constructor(private val appContext: Context) : KeyValueEncryptedStorage {
+public class KeyValueStorageEncryptedSharedPreferences constructor(
+    private val appContext: Context,
+    private val customGsonTypeAdapterFactories: Array<TypeAdapterFactory> = arrayOf(BundleTypeAdapterFactory())
+) : KeyValueEncryptedStorage {
+    private val gson: Gson
+
+    init {
+        gson = createGson()
+    }
 
     @SuppressLint("ApplySharedPref")
     @Suppress("SwallowedException")
@@ -28,7 +40,7 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(private val a
         val pref = getEncryptedSharedPreferencesFor(key)
 
         // Convert the result to JSON and store
-        val dataJson = if (value != null) createGson().toJson(value) else null
+        val dataJson = if (value != null) gson.toJson(value) else null
         // Strategy:
         // We cache the old value temporarily
         // We try to store and write the new value to the disk
@@ -68,7 +80,7 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(private val a
         }
 
         return try {
-            createGson().fromJson(dataJson, valueType)
+            gson.fromJson(dataJson, valueType)
         } catch (e: JsonSyntaxException) {
             return null // We have nothing
         }
@@ -92,8 +104,13 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(private val a
         }
     }
 
-    override fun getStorageTypeName(): String {
+    override fun getStorageName(): String {
         return "KeyValueStorageEncryptedSharedPreferences"
+    }
+
+    override fun getStorageId(): String {
+        // Warning - if this is changed then all storage choices will be broken
+        return "STORAGE_ID_KEY_VALUE_ENCRYPTED_SHARED_PREFERENCES"
     }
 
     private fun getEncryptedSharedPreferencesFor(tag: String): SharedPreferences {
@@ -124,11 +141,15 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(private val a
     }
 
     private fun createGson(): Gson {
-        return GsonBuilder().create()
+        val builder = GsonBuilder()
+        for (customGsonTypeAdapterFactory in customGsonTypeAdapterFactories) {
+            builder.registerTypeAdapterFactory(customGsonTypeAdapterFactory)
+        }
+        return builder.create()
     }
 
     private companion object {
-        const val STORAGE_MASTER_KEY_ALIAS: String = "_tester_master_key_1"
+        const val STORAGE_MASTER_KEY_ALIAS: String = "mobi.lab.labencryptedstorage_master_key_1"
         const val STORAGE_BASE_ID: String = "mobi.lab.labencryptedstorage_encrypted"
     }
 }

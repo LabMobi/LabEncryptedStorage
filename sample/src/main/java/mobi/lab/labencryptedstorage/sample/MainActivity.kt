@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         val value1C = storage.read<String>(key1, String::class.java)
         assert(value1C == null) { "Value was not correctly deleted!" }
 
-        return "Test successful with ${storage.getStorageTypeName()}"
+        return "Test successful with ${storage.getStorageName()}"
     }
 
     private fun onTestFailed(throwable: Throwable) {

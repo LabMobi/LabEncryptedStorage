@@ -8,6 +8,7 @@ import android.text.TextUtils
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParseException
+import com.google.gson.TypeAdapterFactory
 import mobi.lab.labencryptedstorage.R
 import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
 import mobi.lab.labencryptedstorage.inter.KeyValueClearTextStorage
@@ -18,8 +19,13 @@ import java.lang.reflect.Type
  * Android SharedPreferences based implementation of [KeyValueClearTextStorage].
  *
  * @property appContext Application context
+ * @property customGsonTypeAdapterFactories Custom Gson adapter factories to use during serialization and deserialization.
+ * By default uses [BundleTypeAdapterFactory].
  */
-public class KeyValueStorageClearTextSharedPreferences constructor(private val appContext: Context) : KeyValueClearTextStorage {
+public class KeyValueStorageClearTextSharedPreferences constructor(
+    private val appContext: Context,
+    private val customGsonTypeAdapterFactories: Array<TypeAdapterFactory> = arrayOf(BundleTypeAdapterFactory())
+) : KeyValueClearTextStorage {
     private val gson: Gson
 
     init {
@@ -96,8 +102,13 @@ public class KeyValueStorageClearTextSharedPreferences constructor(private val a
         }
     }
 
-    override fun getStorageTypeName(): String {
+    override fun getStorageName(): String {
         return "KeyValueStorageClearTextSharedPreferences"
+    }
+
+    override fun getStorageId(): String {
+        // Warning - if this is changed then all storage choices will be broken
+        return "STORAGE_ID_KEY_VALUE_CLEAR_TEXT_SHARED_PREFERENCES"
     }
 
     private fun getSharedPrefsFor(tag: String): SharedPreferences {
@@ -113,9 +124,11 @@ public class KeyValueStorageClearTextSharedPreferences constructor(private val a
     }
 
     private fun createGson(): Gson {
-        // Note: The BundleTypeAdapterFactory helps with bundles,
-        // but can't handle serializable objects inside bundles.
-        return GsonBuilder().registerTypeAdapterFactory(BundleTypeAdapterFactory()).create()
+        val builder = GsonBuilder()
+        for (customGsonTypeAdapterFactory in customGsonTypeAdapterFactories) {
+            builder.registerTypeAdapterFactory(customGsonTypeAdapterFactory)
+        }
+        return builder.create()
     }
 
     private companion object {

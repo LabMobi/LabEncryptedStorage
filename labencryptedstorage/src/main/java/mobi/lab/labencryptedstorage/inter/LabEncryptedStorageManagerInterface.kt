@@ -26,6 +26,16 @@ public interface LabEncryptedStorageManagerInterface {
 
     /**
      * Get the [KeyValueClearTextStorage] supplied during [LabEncryptedStorageManagerInterface] object creation.
+     * Used for remembering the selected storage.
+     * Added just-in-case, most likely you want to call [getOrSelectStorage] instead.
+     *
+     * @return KeyValueClearTextStorage
+     */
+    public fun getSuppliedInternalChoiceStorageImplementation(): KeyValueClearTextStorage
+
+    /**
+     * Get the [KeyValueClearTextStorage] supplied during [LabEncryptedStorageManagerInterface] object creation.
+     * Used for fallbacks if encrypted storage does not work.
      * Added just-in-case, most likely you want to call [getOrSelectStorage] instead.
      *
      * @return KeyValueClearTextStorage
@@ -34,6 +44,7 @@ public interface LabEncryptedStorageManagerInterface {
 
     /**
      * Get the [KeyValueEncryptedStorage] supplied during [LabEncryptedStorageManagerInterface] object creation.
+     * Used if allowed and storageCompatibilityTester shows the device supports it.
      * Added just-in-case, most likely you want to call [getOrSelectStorage] instead.
      *
      * @return KeyValueEncryptedStorage
