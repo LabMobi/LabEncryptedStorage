@@ -47,9 +47,9 @@ git push
 ```groovy
 ext {
     // Version name will be versionMajor.versionMinor.versionPatch
-    versionMajor = 1
-    versionMinor = 0
-    versionPatch = 0
+    versionMajor = 1  <- UPDATE
+    versionMinor = 0  <- UPDATE
+    versionPatch = 0  <- UPDATE
 }
 ```
 
@@ -99,18 +99,45 @@ git push
 
 ## Post-release actions
 
-1) In the `develop` branch update the library version code to a new version so the `develop` branch code and the released code does not have a matching version.
+1. Create and push a release tag to the repository
+
+   ```bash
+   git checkout main 
+   git pull 
+   git tag release-X.Y.Z # <- Substitute the current version here 
+   git push origin release-X.Y.Z # <- Substitute the current version here
+   ```
+
+   
+
+2. In the `develop` branch update the library version code to a new version so the `develop` branch code and the released code does not have a matching version.
+
+```
+git checkout develop 
+git pull 
+```
+
   - Keep the release number in the style of X.Y.Z.
 
 
-```clojure
+```groovy
 ext {
     // Version name will be versionMajor.versionMinor.versionPatch
-    versionMajor = 1
-    versionMinor = 0
-    versionPatch = 0
+    versionMajor = 1 // <- UPDATE
+    versionMinor = 0 // <- UPDATE
+    versionPatch = 0 // <- UPDATE
 }
 ```
+
+and commit and push the changes:
+
+```bash
+git add build.gradle
+git commit -m "Update the version code to X.Y.Z"
+git push
+```
+
+
 
 ## EXTRA: Manual publishing
 

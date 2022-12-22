@@ -20,10 +20,10 @@ definitions:
       script: |
         chmod +x gradlew
         echo "sdk.dir=$ANDROID_SDK_ROOT" > "$FCI_BUILD_DIR/local.properties"
-    # Build DEBUG
-    - &stepBuildDebug
-      name: Build Android
-      script: ./gradlew buildAll
+    # Run checkCode
+    - &stepCheckCode
+      name: Check code style and formatting
+      script: ./gradlew checkCode
     # Build RELEASE
     - &stepBuildRelease
       name: Build Android
@@ -34,7 +34,13 @@ definitions:
       script: |
         cd $ANDROID_HOME/tools
         emulator -avd emulator &
-        adb wait-for-device
+        adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
+    # Stop emulator
+    - &stepStopEmulator
+      name: Stop emulator
+      script: |
+        cd $ANDROID_HOME/tools
+        adb emu kill
     # Run tests
     - &stepRunTests
       name: Test Android
@@ -64,9 +70,11 @@ workflows:
       - name: Check 'main' branch
         script: if [ "$FCI_BRANCH" != "main" ]; then exit 1; fi
       - *stepLocalSetup
-      - *stepBuildRelease
+      - *stepCheckCode
       - *stepStartEmulator
       - *stepRunTests
+      - *stepStopEmulator
+      - *stepBuildRelease
     publishing:
       email:
         recipients: *releaseEmails
@@ -77,9 +85,11 @@ workflows:
       groups:
         - publishing_props
     scripts:
-      - name: Check 'master' branch
-        script: if [ "$FCI_BRANCH" != "main" ]; then exit 1; fi
       - *stepLocalSetup
+      - *stepCheckCode
+      - *stepStartEmulator
+      - *stepRunTests
+      - *stepStopEmulator
       - *stepBuildPublish
     publishing:
       email:
@@ -97,9 +107,11 @@ workflows:
           source: true
     scripts:
       - *stepLocalSetup
-      - *stepBuildDebug
+      - *stepCheckCode
       - *stepStartEmulator
       - *stepRunTests
+      - *stepStopEmulator
+      - *stepBuildRelease
     artifacts: *androidArtifacts
     publishing:
       email:
@@ -116,9 +128,11 @@ workflows:
       cancel_previous_builds: true
     scripts:
       - *stepLocalSetup
-      - *stepBuildDebug
+      - *stepCheckCode
       - *stepStartEmulator
       - *stepRunTests
+      - *stepStopEmulator
+      - *stepBuildRelease
     publishing:
       email:
         recipients: *debugEmails
