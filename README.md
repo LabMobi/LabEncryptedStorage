@@ -65,9 +65,33 @@ NOTE: Do not use it directly from UI thread.
 
 NOTE: If the storage operation fails then `KeyValueStorageException` will be thrown!
 
+## Known Issues
+
+1. When storing an Android bundle the library will only be able to support a few primitives like Strings, Booleans, Integers, .. - see the `BundleTypeAdapterFactory.java`.
+
 ## Releases
 
-TODO: Maven Central artifact will be available soon.
+<img align="left" src="https://maven-badges.herokuapp.com/maven-central/mobi.lab.labencryptedstorage/labencryptedstorage/badge.png?style=flat">
+
+Available via Maven - https://repo1.maven.org/maven2/mobi/lab/labencryptedstorage/labencryptedstorage/ 
+
+Add the dependency declaration to your module's `build.gradle` file, to the dependencies enclosure:
+
+```groovy
+dependencies {
+// ..
+    implementation "mobi.lab.labencryptedstorage:labencryptedstorage:VERSION"
+// ..
+}
+```
+
+The artifact is available in Maven Central, make sure you add the repository definition:
+
+```groovy
+repositories {
+    mavenCentral()
+}
+```
 
 ## Adding the library to a project
 

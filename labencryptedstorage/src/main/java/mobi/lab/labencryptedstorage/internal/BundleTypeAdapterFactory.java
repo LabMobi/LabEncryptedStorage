@@ -78,7 +78,11 @@ public class BundleTypeAdapterFactory implements TypeAdapterFactory {
                 for (Pair<String, Object> entry : values) {
                     String key = entry.first;
                     Object value = entry.second;
-                    if (value instanceof String) {
+                    if (value instanceof Float) {
+                        bundle.putFloat(key, (Float) value);
+                    } else if (value instanceof Boolean) {
+                        bundle.putBoolean(key, (Boolean) value);
+                    } else if (value instanceof String) {
                         bundle.putString(key, (String) value);
                     } else if (value instanceof Integer) {
                         bundle.putInt(key, (Integer) value);
