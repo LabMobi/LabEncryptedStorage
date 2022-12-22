@@ -3,43 +3,25 @@
  Version Catalogs is used for version management. See gradle/libs.versions.toml
  */
 
-// This definition type let's us define all functions in a single place and access them via deps.
-ext.deps = [
-
-        addUnitTestDependencies: { handler ->
-            handler.testImplementation libs.test.junit
-            handler.testImplementation libs.test.junit.kotlin
-        },
-
-        addInstrumentationTestDependencies: { handler ->
-            addUnitTestDependencies(handler)
-
-            handler.androidTestImplementation libs.test.androidx.junit // Junit runner
-            handler.androidTestImplementation libs.test.androidx.testrunner
-            handler.androidTestImplementation libs.test.espresso.core
-        },
-]
-
 
 // Android configuration
-
 ext.androidVersions = [
-        minSdk    : 23,
-        compileSdk: 31,
-        targetSdk : 31
+        minSdk    : 21,
+        compileSdk: 33,
+        targetSdk : 33
 ]
 
 // Shared version definitions
 def versions = [
-        kotlin: '1.6.10',
+        kotlin: '1.7.10',
 ]
 
 ext.buildScriptDeps = [
-        androidGradlePlugin: 'com.android.tools.build:gradle:7.0.4',
+        androidGradlePlugin: 'com.android.tools.build:gradle:7.3.0',
         kotlinGradlePlugin : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
-        ktlintGradle       : 'org.jlleitschuh.gradle:ktlint-gradle:10.2.1',
-        gradleVersions     : 'com.github.ben-manes:gradle-versions-plugin:0.41.0',
-        detektPlugin       : 'io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.19.0'
+        ktlintGradle       : 'org.jlleitschuh.gradle:ktlint-gradle:11.0.0',
+        gradleVersions     : 'com.github.ben-manes:gradle-versions-plugin:0.42.0',
+        detektPlugin       : 'io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.21.0'
 ]
 
 ext.deps = [
@@ -71,4 +53,6 @@ ext.deps.addInstrumentationTestDependencies = { handler ->
     handler.androidTestImplementation libs.test.androidx.junit // Junit runner
     handler.androidTestImplementation libs.test.androidx.testrunner
     handler.androidTestImplementation libs.test.espresso.core
+    handler.androidTestImplementation libs.test.mockito.android
+    handler.androidTestImplementation libs.test.mockito.kotlin
 }

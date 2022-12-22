@@ -33,7 +33,7 @@ import mobi.lab.labencryptedstorage.inter.LabEncryptedStorageManagerInterface
  * the encrypted storage works on this given device.
  */
 @Suppress("LongParameterList")
-public class LabEncryptedStorageManager(
+public open class LabEncryptedStorageManager(
     private val applicationContext: Context,
     private val hardwareKeyStoreBasedStorageEncryptionEnabled: Boolean,
     private val hardwareKeyStoreBasedStorageEncryptionBlocklist: List<String>,
@@ -81,7 +81,7 @@ public class LabEncryptedStorageManager(
                 "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Caller disallows encrypted storage for this device."
             )
             true
-        } else if (!deviceSupportsEncryptedStorage(hardwareKeyStoreBasedEncryptedStorageCompatibilityTester)) {
+        } else if (!deviceSupportsEncryptedStorage()) {
             Log.d(
                 "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: This device doesn't support encrypted storage."
             )
@@ -94,7 +94,7 @@ public class LabEncryptedStorageManager(
         }
     }
 
-    private fun hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice(): Boolean {
+    internal fun hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice(): Boolean {
         // Device info in the form of ["manufacturer1 model1","manufacturer2 model2"]
         val currentDeviceManufacturerModel = "${Build.MANUFACTURER} ${Build.MODEL}".lowercase()
         for (deviceManufacturerModel in hardwareKeyStoreBasedStorageEncryptionBlocklist) {
@@ -111,15 +111,13 @@ public class LabEncryptedStorageManager(
         return false
     }
 
-    private fun deviceSupportsEncryptedStorage(
-        storageDeviceCompatibilityTester: EncryptedStorageCompatibilityTester
-    ): Boolean {
+    internal fun deviceSupportsEncryptedStorage(): Boolean {
         try {
             // Try some reads and writes
             Log.d(
                 "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Testing encryptedStorage .."
             )
-            storageDeviceCompatibilityTester.runTest(applicationContext, getSuppliedEncryptedStorageImplementation())
+            hardwareKeyStoreBasedEncryptedStorageCompatibilityTester.runTest(applicationContext, getSuppliedEncryptedStorageImplementation())
             Log.d(
                 "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Testing success!"
             )
@@ -201,7 +199,7 @@ public class LabEncryptedStorageManager(
         private val applicationContext: Context
     ) {
         private var hardwareKeyStoreBasedStorageEncryptionEnabled: Boolean = true
-        private var hardwareKeyStoreBasedStorageEncryptionBlocklist: List<String> = arrayListOf()
+        private var hardwareKeyStoreBasedStorageEncryptionBlocklist: ArrayList<String> = arrayListOf()
         private var clearTextStorage: KeyValueClearTextStorage = KeyValueStorageClearTextSharedPreferences(applicationContext)
         private val internalChoiceStorage: KeyValueClearTextStorage = clearTextStorage
         private var encryptedStorage: KeyValueEncryptedStorage = KeyValueStorageEncryptedSharedPreferences(applicationContext)
@@ -225,7 +223,7 @@ public class LabEncryptedStorageManager(
          * @param deviceManufacturerAndModel List of "manufacturer1 model1","manufacturer2 model2"
          */
         public fun hardwareKeyStoreBasedStorageEncryptionBlocklist(vararg deviceManufacturerAndModel: String): Builder =
-            apply { this.hardwareKeyStoreBasedStorageEncryptionBlocklist + deviceManufacturerAndModel }
+            apply { this.hardwareKeyStoreBasedStorageEncryptionBlocklist.addAll(deviceManufacturerAndModel) }
 
         /**
          *

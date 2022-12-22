@@ -9,7 +9,7 @@ import org.junit.Test
 public class SampleClassTest {
 
     /**
-     * Dummy temporary test method.
+     * Dummy placeholder test method.
      */
     @Test
     public fun testSanity() {
