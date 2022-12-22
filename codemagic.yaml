@@ -8,6 +8,7 @@ definitions:
     - labencryptedstorage/build/outputs/logs
     - labencryptedstorage/build/outputs/**/*.aar
     - labencryptedstorage/build/outputs/**/mapping.txt
+    - sample/build/outputs/apk/**/*.apk
   debug-emails: &debugEmails
     - harri.kirik@lab.mobi
   release-emails: &releaseEmails
@@ -48,11 +49,17 @@ definitions:
           echo "Tests failed"
           exit 1
         fi
+    # Build PUBLISH
+    - &stepBuildPublish
+      name: Publish to Maven Central
+      script: |
+        echo $PUBLISH_PROPS | base64 --decode > publish.properties
+        ./gradlew buildAndPublishRelease
 
 # Flows
 workflows:
-  play-store-release-builds:
-    name: Play Store Release builds
+  release-builds:
+    name: Release builds for verification (main branch only)
     scripts:
       - name: Check 'main' branch
         script: if [ "$FCI_BRANCH" != "main" ]; then exit 1; fi
@@ -64,8 +71,22 @@ workflows:
       email:
         recipients: *releaseEmails
     artifacts: *androidArtifacts
+  publish-builds:
+    name: Publish to Maven builds (main branch only)
+    environment:
+      groups:
+        - publishing_props
+    scripts:
+      - name: Check 'master' branch
+        script: if [ "$FCI_BRANCH" != "main" ]; then exit 1; fi
+      - *stepLocalSetup
+      - *stepBuildPublish
+    publishing:
+      email:
+        recipients: *releaseEmails
+    artifacts: *androidArtifacts
   develop-builds:
-    name: Dev builds
+    name: Development builds
     triggering:
       events:
         - push
