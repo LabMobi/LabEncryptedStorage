@@ -37,7 +37,7 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
     @SuppressLint("ApplySharedPref")
     @Suppress("SwallowedException")
     override fun store(key: String, value: Any?) {
-        val pref = getEncryptedSharedPreferencesFor(key)
+        val pref = getEncryptedSharedPreferencesFor(getStoragePrefix(key))
 
         // Convert the result to JSON and store
         val dataJson = if (value != null) gson.toJson(value) else null
@@ -71,7 +71,7 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
 
     @Suppress("SwallowedException")
     override fun <T> read(key: String, valueType: Type): T? {
-        val pref = getEncryptedSharedPreferencesFor(key)
+        val pref = getEncryptedSharedPreferencesFor(getStoragePrefix(key))
 
         // Get the value if we have any
         val dataJson = pref.getString(getPrimaryDataKey(key), null)
@@ -90,7 +90,7 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
     @Suppress("SwallowedException")
     override fun delete(key: String) {
         try {
-            val pref = getEncryptedSharedPreferencesFor(key)
+            val pref = getEncryptedSharedPreferencesFor(getStoragePrefix(key))
             pref.edit().remove(getPrimaryDataKey(key)).commit()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 try {
@@ -113,12 +113,12 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
         return "STORAGE_ID_KEY_VALUE_ENCRYPTED_SHARED_PREFERENCES"
     }
 
-    private fun getEncryptedSharedPreferencesFor(tag: String): SharedPreferences {
+    private fun getEncryptedSharedPreferencesFor(filename: String): SharedPreferences {
         val masterKey: MasterKey = createOrGetMasterKey()
 
         return EncryptedSharedPreferences.create(
             appContext,
-            getStoragePrefix(tag),
+            filename,
             masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
@@ -133,11 +133,11 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
     }
 
     private fun getStoragePrefix(tag: String): String {
-        return "$STORAGE_BASE_ID.STORAGE_$tag"
+        return "$STORAGE_BASE_ID.$tag"
     }
 
     private fun getPrimaryDataKey(tag: String): String {
-        return "$STORAGE_BASE_ID.KEY_PRIMARY_DATA_$tag"
+        return "$STORAGE_BASE_ID.$tag"
     }
 
     private fun createGson(): Gson {
@@ -150,6 +150,6 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
 
     private companion object {
         const val STORAGE_MASTER_KEY_ALIAS: String = "mobi.lab.labencryptedstorage_master_key_1"
-        const val STORAGE_BASE_ID: String = "mobi.lab.labencryptedstorage_encrypted"
+        const val STORAGE_BASE_ID: String = "les_e"
     }
 }

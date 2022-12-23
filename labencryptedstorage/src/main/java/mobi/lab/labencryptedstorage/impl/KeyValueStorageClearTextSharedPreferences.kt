@@ -35,7 +35,7 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
     @SuppressLint("ApplySharedPref")
     @Suppress("SwallowedException")
     override fun store(key: String, value: Any?) {
-        val pref = getSharedPrefsFor(key)
+        val pref = getSharedPrefsFor(getStoragePrefix(key))
 
         // Convert the result to JSON and store
         val dataJson = if (value != null) gson.toJson(value) else null
@@ -69,7 +69,7 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
 
     @Suppress("SwallowedException")
     override fun <T> read(key: String, valueType: Type): T? {
-        val pref = getSharedPrefsFor(key)
+        val pref = getSharedPrefsFor(getStoragePrefix(key))
 
         // Get the value if we have any
         val dataJson = pref.getString(getPrimaryDataKey(key), null)
@@ -88,7 +88,7 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
     @Suppress("SwallowedException")
     override fun delete(key: String) {
         try {
-            val pref = getSharedPrefsFor(key)
+            val pref = getSharedPrefsFor(getStoragePrefix(key))
             pref.edit().remove(getPrimaryDataKey(key)).commit()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 try {
@@ -111,16 +111,16 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
         return "STORAGE_ID_KEY_VALUE_CLEAR_TEXT_SHARED_PREFERENCES"
     }
 
-    private fun getSharedPrefsFor(tag: String): SharedPreferences {
-        return appContext.getSharedPreferences(getStoragePrefix(tag), Context.MODE_PRIVATE)
+    private fun getSharedPrefsFor(filename: String): SharedPreferences {
+        return appContext.getSharedPreferences(filename, Context.MODE_PRIVATE)
     }
 
     private fun getStoragePrefix(tag: String): String {
-        return "$STORAGE_BASE_ID.STORAGE_$tag"
+        return "$STORAGE_BASE_ID.$tag"
     }
 
     private fun getPrimaryDataKey(tag: String): String {
-        return "$STORAGE_BASE_ID.KEY_PRIMARY_DATA_$tag"
+        return "$STORAGE_BASE_ID.$tag"
     }
 
     private fun createGson(): Gson {
@@ -132,6 +132,6 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
     }
 
     private companion object {
-        private const val STORAGE_BASE_ID: String = "mobi.lab.labencryptedstorage.clear_text"
+        private const val STORAGE_BASE_ID: String = "les_ct"
     }
 }
