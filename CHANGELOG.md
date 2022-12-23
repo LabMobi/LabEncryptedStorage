@@ -1,4 +1,9 @@
 # Changelog
+## [0.9.4] - 2022-12-23
+
+### Changed
+
+- Removed the AppCompat dependency from the library, this was added accidentally.
 
 ## [0.9.3] - 2022-12-23
 

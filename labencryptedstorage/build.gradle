@@ -70,7 +70,6 @@ dependencies {
     deps.addInstrumentationTestDependencies(it)
 
     implementation libs.kotlin
-    implementation libs.androidx.appcompat
     implementation libs.gson
     implementation libs.androidx.security.crypto
 }
