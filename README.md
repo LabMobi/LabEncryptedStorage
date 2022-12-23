@@ -136,32 +136,8 @@ The artifact is available in Maven Central, make sure you add the repository def
 ```groovy
 repositories {
     mavenCentral()
-}
+}.
 ```
-
-## Adding the library to a project
-
-Until the library is published to Maven Central, you need the `.aar` artefact. Either build it locally or take it from GitHub Releases.
-
-##### Gradle
-
-Add the following to your main application module's `build.gradle` file:
-
-```groovy
-repositories {
-   flatDir {
-        dirs 'libs'
-    }
-}
-
-dependencies {
-    implementation(name: 'labencryptedstorage-1.0.0-release', ext: 'aar')
-}
-```
-
-This assumes 2 things:
-* The version is `1.0.0`
-* The main application module has a `libs/` directory that contains the `labencryptedstorage-1.0.0-release.aar` artefact.
 
 ## Building the library
 
