@@ -82,7 +82,7 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
         return try {
             gson.fromJson(dataJson, valueType)
         } catch (e: JsonSyntaxException) {
-            return null // We have nothing
+            null // We have nothing
         }
     }
 

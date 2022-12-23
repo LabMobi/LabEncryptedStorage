@@ -80,7 +80,7 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
         return try {
             gson.fromJson(dataJson, valueType)
         } catch (e: JsonParseException) {
-            return null // We have nothing
+            null // We have nothing
         }
     }
 
