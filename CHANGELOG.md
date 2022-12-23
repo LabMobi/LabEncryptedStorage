@@ -1,5 +1,5 @@
 # Changelog
 
-## [1.0.0] - 2022-12-21
+## [0.9.2] - 2022-12-23
 ### Added
 - First version of the library.
