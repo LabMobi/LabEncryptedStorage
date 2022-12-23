@@ -2,9 +2,7 @@ Mobi Lab / We make robots talk to humans
 
 # Lab Encrypted Storage
 
-<img align="left" src="https://maven-badges.herokuapp.com/maven-central/mobi.lab.labencryptedstorage/labencryptedstorage/badge.png?style=flat">
-
-
+NOTE: Get the latest version number from: https://central.sonatype.dev/namespace/mobi.lab.labencryptedstorage
 
 Encrypted key-value storage library for Android. Uses Google's [EncryptedSharedPreferences](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences) and [SharedPreferences](https://developer.android.com/training/data-storage/shared-preferences) as the backing storage in synchronous mode.
 
@@ -119,9 +117,7 @@ and the configuration files themselves can be the following ones below.
 
 ## Releases
 
-<img align="left" src="https://maven-badges.herokuapp.com/maven-central/mobi.lab.labencryptedstorage/labencryptedstorage/badge.png?style=flat">
-
-
+NOTE: Get the latest version number from: https://central.sonatype.dev/namespace/mobi.lab.labencryptedstorage
 
 Available via Maven - https://repo1.maven.org/maven2/mobi/lab/labencryptedstorage/labencryptedstorage/ 
 
@@ -130,7 +126,7 @@ Add the dependency declaration to your module's `build.gradle` file, to the depe
 ```groovy
 dependencies {
 // ..
-    implementation "mobi.lab.labencryptedstorage:labencryptedstorage:VERSION"
+    implementation "mobi.lab.labencryptedstorage:labencryptedstorage:LATEST_VERSION"
 // ..
 }
 ```
