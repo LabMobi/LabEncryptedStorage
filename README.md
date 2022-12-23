@@ -2,6 +2,10 @@ Mobi Lab / We make robots talk to humans
 
 # Lab Encrypted Storage
 
+<img align="left" src="https://maven-badges.herokuapp.com/maven-central/mobi.lab.labencryptedstorage/labencryptedstorage/badge.png?style=flat">
+
+
+
 Encrypted key-value storage library for Android. Uses Google's [EncryptedSharedPreferences](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences) and [SharedPreferences](https://developer.android.com/training/data-storage/shared-preferences) as the backing storage in synchronous mode.
 
 Main benefits of `LabEncryptedStorage` over using Google's `SharedPreferences` directly:
@@ -13,7 +17,7 @@ Main benefits of `LabEncryptedStorage` over using Google's `SharedPreferences` d
 
 ## Requirements
 
-`LabEncryptedStorage` works on Android 5.0+ (API level 21+). But requires the Android `compileSdkVersion` to be set to `android-33`.
+`LabEncryptedStorage` works on Android 5.0+ (API level 21+). It requires the Android `compileSdkVersion` to be set to `android-33`.
 
 ## Usage
 
@@ -65,13 +69,59 @@ NOTE: Do not use it directly from UI thread.
 
 NOTE: If the storage operation fails then `KeyValueStorageException` will be thrown!
 
-## Known Issues
+## Known Issues and considerations
 
-1. When storing an Android bundle the library will only be able to support a few primitives like Strings, Booleans, Integers, .. - see the `BundleTypeAdapterFactory.java`.
+### Not the best way to store Android Bundle objects
+
+When storing an Android bundle the library will only be able to support a few primitives like Strings, Booleans, Integers, .. - see the `BundleTypeAdapterFactory.java`.
+
+#### Be careful with automatic backup when using encrypted storage
+
+Most likely you will want to disable backups entirely. You can do this via your application's Android Manifest.
+
+In the Manifest you want to define the following configuration:
+
+```xml
+<application
+    android:allowBackup="false"
+    android:fullBackupContent="@xml/full_backup_content"
+    android:dataExtractionRules="@xml/data_extraction_rules"
+    ..>
+</application>
+```
+
+and the configuration files themselves can be the following ones below.
+
+#### File full_backup_content
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- All SharedPreferences And EncryptedSharedPreferences are turned off for now for Android 11 and older -->
+    <exclude domain="sharedpref" />
+</full-backup-content>
+```
+
+#### File data_extraction_rules
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <!-- All SharedPreferences And EncryptedSharedPreferences are turned off for now for Android 12 and newer -->
+    <cloud-backup>
+        <exclude domain="sharedpref" path="."/>
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="."/>
+    </device-transfer>
+</data-extraction-rules>
+```
 
 ## Releases
 
 <img align="left" src="https://maven-badges.herokuapp.com/maven-central/mobi.lab.labencryptedstorage/labencryptedstorage/badge.png?style=flat">
+
+
 
 Available via Maven - https://repo1.maven.org/maven2/mobi/lab/labencryptedstorage/labencryptedstorage/ 
 

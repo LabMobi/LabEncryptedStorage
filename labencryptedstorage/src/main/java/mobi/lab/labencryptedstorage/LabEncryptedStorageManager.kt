@@ -2,7 +2,6 @@ package mobi.lab.labencryptedstorage
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import com.google.gson.reflect.TypeToken
 import mobi.lab.labencryptedstorage.LabEncryptedStorageManager.Builder
 import mobi.lab.labencryptedstorage.impl.KeyValueStorageClearTextSharedPreferences
@@ -48,14 +47,7 @@ public open class LabEncryptedStorageManager(
         synchronized(selectionLock) {
             var selectedImpl: KeyValueStorage? = getLastSelectedStorageOrNullIfNoneSelectedYet()
             if (selectedImpl == null) {
-                Log.d("LabEncryptedStorageManager", "StorageConfigurationManagerImpl: No storage selected, finding and selecting one ..")
                 selectedImpl = findTheBestStorageImpl()
-                Log.d("LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Selected \"${selectedImpl.getStorageName()}\" for storage")
-            } else {
-                Log.d(
-                    "LabEncryptedStorageManager",
-                    "StorageConfigurationManagerImpl: Storage already selected, using last selection \"${selectedImpl.getStorageName()}\""
-                )
             }
             setLastSelectedStorageImpl(selectedImpl)
             return selectedImpl
@@ -70,26 +62,15 @@ public open class LabEncryptedStorageManager(
         }
     }
 
+    @Suppress("RedundantIf")
     private fun shouldUseClearTextStorage(): Boolean {
         return if (!hardwareKeyStoreBasedStorageEncryptionEnabled) {
-            Log.d(
-                "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Caller disallows encrypted storage for all devices."
-            )
             true
         } else if (hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice()) {
-            Log.d(
-                "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Caller disallows encrypted storage for this device."
-            )
             true
         } else if (!deviceSupportsEncryptedStorage()) {
-            Log.d(
-                "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: This device doesn't support encrypted storage."
-            )
             true
         } else {
-            Log.d(
-                "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Encrypted storage is allowed and supported, defaulting to that."
-            )
             false
         }
     }
@@ -102,29 +83,18 @@ public open class LabEncryptedStorageManager(
                 deviceManufacturerModel.lowercase() == currentDeviceManufacturerModel ||
                 deviceManufacturerModel.lowercase().trim() == currentDeviceManufacturerModel
             ) {
-                Log.d(
-                    "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Encrypted storage disabled for \"$deviceManufacturerModel\""
-                )
                 return true
             }
         }
         return false
     }
 
+    @Suppress("SwallowedException")
     internal fun deviceSupportsEncryptedStorage(): Boolean {
         try {
             // Try some reads and writes
-            Log.d(
-                "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Testing encryptedStorage .."
-            )
             hardwareKeyStoreBasedEncryptedStorageCompatibilityTester.runTest(applicationContext, getSuppliedEncryptedStorageImplementation())
-            Log.d(
-                "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Testing success!"
-            )
         } catch (throwable: Throwable) {
-            Log.d(
-                "LabEncryptedStorageManager", "StorageConfigurationManagerImpl: Testing failed!", throwable
-            )
             // Doesn't support
             return false
         }
