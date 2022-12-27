@@ -156,7 +156,7 @@ The artifact is available in Maven Central, make sure you add the repository def
 ```groovy
 repositories {
     mavenCentral()
-}.
+}
 ```
 
 ## Building the library

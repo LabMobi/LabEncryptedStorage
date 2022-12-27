@@ -126,9 +126,11 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
     }
 
     private fun createOrGetMasterKey(): MasterKey {
+        // Note setRequestStrongBoxBacked is set to false for speed reasons for now.
+        // Will be configurable in the future.
         return MasterKey.Builder(appContext, STORAGE_MASTER_KEY_ALIAS)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .setRequestStrongBoxBacked(true)
+            .setRequestStrongBoxBacked(false)
             .build()
     }
 

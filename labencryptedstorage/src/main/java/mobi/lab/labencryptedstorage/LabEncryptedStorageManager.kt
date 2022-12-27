@@ -77,11 +77,13 @@ public open class LabEncryptedStorageManager(
 
     internal fun hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice(): Boolean {
         // Device info in the form of ["manufacturer1 model1","manufacturer2 model2"]
-        val currentDeviceManufacturerModel = "${Build.MANUFACTURER} ${Build.MODEL}".lowercase()
+        val currentDeviceManufacturerModel = "${Build.MANUFACTURER} ${Build.MODEL}"
         for (deviceManufacturerModel in hardwareKeyStoreBasedStorageEncryptionBlocklist) {
+            // Just in case we want to compare in original form, in lowercase and with input trimmed also.
             if (
-                deviceManufacturerModel.lowercase() == currentDeviceManufacturerModel ||
-                deviceManufacturerModel.lowercase().trim() == currentDeviceManufacturerModel
+                deviceManufacturerModel == currentDeviceManufacturerModel ||
+                deviceManufacturerModel.lowercase() == currentDeviceManufacturerModel.lowercase() ||
+                deviceManufacturerModel.lowercase().trim() == currentDeviceManufacturerModel.lowercase()
             ) {
                 return true
             }

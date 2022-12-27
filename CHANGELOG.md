@@ -1,4 +1,10 @@
 # Changelog
+## [0.9.5] - 2022-12-27
+- Breaking change: setRequestStrongBoxBacked is set to false for hardware backed storage by default. This will be configurable soon.
+- Made the blocklist device manufacturer and model comparison safer.
+
+### Changed
+
 ## [0.9.4] - 2022-12-23
 
 ### Changed
