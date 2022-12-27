@@ -13,6 +13,8 @@ Main benefits of `LabEncryptedStorage` over using Google's `SharedPreferences` d
 - Uses synchronous storage - every operation either succeeds or throws immediately. Useful in cases where data must be stored, or failure must be known immediately. 
 - Reduces risks of directly depending on Google's alpha/beta level libraries like `EncryptedSharedPreferences`. Useful for libraries with extended code freezes or certified binaries.
 
+NOTE: The library uses Gson for serializing and deserializing DTOs. In the future this may become customizable.
+
 ## Requirements
 
 `LabEncryptedStorage` works on Android 5.0+ (API level 21+). It requires the Android `compileSdkVersion` to be set to `android-33`.
@@ -68,6 +70,24 @@ NOTE: Do not use it directly from UI thread.
 NOTE: If the storage operation fails then `KeyValueStorageException` will be thrown!
 
 ## Known Issues and considerations
+
+### R8 / ProGuard minimization and obfuscation
+
+Make sure R8 / ProGuard keeps (at minimum) the original class field names for the DTOs you store using the library. Otherwise reading from storage will fail if the names change. If you use Gson annotations then keep these also.
+
+You way want to keep the classes fully intact and also keep GSON annotations as follows:
+
+```properties
+# Keep my DTOs (keeps all classes under ..dto.)
+-keep class my.package.name.dto.** { *; }
+# Keep my DTOs 
+
+# GSON
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class sun.misc.Unsafe { *; }
+# GSON
+```
 
 ### Not the best way to store Android Bundle objects
 
