@@ -235,7 +235,9 @@ public open class LabEncryptedStorageManager(
          *
          * @param encryptionDeviceCompatibilityTester Implementation for tester to test if the encrypted storage works on this given device
          */
-        public fun hardwareKeyStoreBasedStorageEncryptionCompatibilityTester(encryptionDeviceCompatibilityTester: EncryptedStorageCompatibilityTester): Builder =
+        public fun hardwareKeyStoreBasedStorageEncryptionCompatibilityTester(
+            encryptionDeviceCompatibilityTester: EncryptedStorageCompatibilityTester
+        ): Builder =
             apply { this.encryptionDeviceCompatibilityTester = encryptionDeviceCompatibilityTester }
 
         /**
