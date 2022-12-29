@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import com.google.gson.reflect.TypeToken
 import mobi.lab.labencryptedstorage.LabEncryptedStorageManager.Builder
+import mobi.lab.labencryptedstorage.entity.StorageEncryptionType
 import mobi.lab.labencryptedstorage.impl.KeyValueStorageClearTextSharedPreferences
 import mobi.lab.labencryptedstorage.impl.KeyValueStorageEncryptedSharedPreferences
 import mobi.lab.labencryptedstorage.impl.SimpleEncryptedStorageDeviceCompatibilityTester
@@ -22,6 +23,9 @@ import mobi.lab.labencryptedstorage.inter.LabEncryptedStorageManagerInterface
  * @property hardwareKeyStoreBasedStorageEncryptionBlocklist if there are any specific devices for which hardware
  * key store based encryption should never be allowed.
  * Device info in the form of ["manufacturer1 model1","manufacturer2 model2"].
+ * @property hardwareKeyStoreBasedStorageEncryptionType Set the preferred hardware key store based encryption element
+ * Available options are [mobi.lab.labencryptedstorage.entity.StorageEncryptionType.TeePreferred] and
+ * [mobi.lab.labencryptedstorage.entity.StorageEncryptionType.StrongBoxPreferred].
  * @property internalChoiceStorage Implementation for internal storage where to remember the storage choice.
  * Used for remembering the selected storage. Usually the same as [clearTextStorage].
  * @property clearTextStorage Implementation for the clear-text storage.
@@ -36,6 +40,7 @@ public open class LabEncryptedStorageManager(
     private val applicationContext: Context,
     private val hardwareKeyStoreBasedStorageEncryptionEnabled: Boolean,
     private val hardwareKeyStoreBasedStorageEncryptionBlocklist: List<String>,
+    private var hardwareKeyStoreBasedStorageEncryptionType: StorageEncryptionType,
     private val internalChoiceStorage: KeyValueClearTextStorage,
     private val clearTextStorage: KeyValueClearTextStorage,
     private val hardwareKeyStoreBasedEncryptedStorage: KeyValueEncryptedStorage,
@@ -172,6 +177,7 @@ public open class LabEncryptedStorageManager(
     ) {
         private var hardwareKeyStoreBasedStorageEncryptionEnabled: Boolean = true
         private var hardwareKeyStoreBasedStorageEncryptionBlocklist: ArrayList<String> = arrayListOf()
+        private var hardwareKeyStoreBasedStorageEncryptionType: StorageEncryptionType = StorageEncryptionType.TeePreferred
         private var clearTextStorage: KeyValueClearTextStorage = KeyValueStorageClearTextSharedPreferences(applicationContext)
         private val internalChoiceStorage: KeyValueClearTextStorage = clearTextStorage
         private var encryptedStorage: KeyValueEncryptedStorage = KeyValueStorageEncryptedSharedPreferences(applicationContext)
@@ -196,6 +202,15 @@ public open class LabEncryptedStorageManager(
          */
         public fun hardwareKeyStoreBasedStorageEncryptionBlocklist(vararg deviceManufacturerAndModel: String): Builder =
             apply { this.hardwareKeyStoreBasedStorageEncryptionBlocklist.addAll(deviceManufacturerAndModel) }
+
+        /**
+         * Set the preferred hardware key store based encryption element.
+         * Available options are [mobi.lab.labencryptedstorage.entity.StorageEncryptionType.TeePreferred] and
+         * [mobi.lab.labencryptedstorage.entity.StorageEncryptionType.StrongBoxPreferred].
+         * Default is the former.
+         */
+        public fun hardwareKeyStoreBasedStorageEncryptionType(hardwareKeyStoreBasedStorageEncryptionType: StorageEncryptionType): Builder =
+            apply { this.hardwareKeyStoreBasedStorageEncryptionType = hardwareKeyStoreBasedStorageEncryptionType }
 
         /**
          *
@@ -239,6 +254,7 @@ public open class LabEncryptedStorageManager(
             applicationContext = applicationContext.applicationContext,
             hardwareKeyStoreBasedStorageEncryptionEnabled = hardwareKeyStoreBasedStorageEncryptionEnabled,
             hardwareKeyStoreBasedStorageEncryptionBlocklist = hardwareKeyStoreBasedStorageEncryptionBlocklist,
+            hardwareKeyStoreBasedStorageEncryptionType = hardwareKeyStoreBasedStorageEncryptionType,
             internalChoiceStorage = internalChoiceStorage,
             clearTextStorage = clearTextStorage,
             hardwareKeyStoreBasedEncryptedStorage = encryptedStorage,
