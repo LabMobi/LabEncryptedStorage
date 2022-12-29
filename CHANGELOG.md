@@ -1,9 +1,16 @@
 # Changelog
-## [0.9.5] - 2022-12-27
-- Breaking change: setRequestStrongBoxBacked is set to false for hardware backed storage by default. This will be configurable soon.
-- Made the blocklist device manufacturer and model comparison safer.
+## [0.9.6] - 2022-12-29
 
 ### Changed
+
+- Added an option to set a preferred hardware keystore type - TEE or StrongBox Keymaster. Before it always defaulted to TEE.
+
+## [0.9.5] - 2022-12-27
+
+### Changed
+
+- Breaking change: setRequestStrongBoxBacked is set to false for hardware backed storage by default. This will be configurable soon.
+- Made the blocklist device manufacturer and model comparison safer.
 
 ## [0.9.4] - 2022-12-23
 
