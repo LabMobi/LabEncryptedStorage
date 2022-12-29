@@ -212,7 +212,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
 
     /**
      * Test that hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice() method
-     * return false if this device is not blacklisted by 1:1 Build.MANUFACTURER Build.MODEL match, only by Build.MANUFACTURER.
+     * return false if this device is not blocklisted by 1:1 Build.MANUFACTURER Build.MODEL match, only by Build.MANUFACTURER.
      */
     @Test
     public fun test_blocklist_result_when_only_manufacturer_is_block_listed() {
@@ -224,7 +224,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
 
     /**
      * Test that hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice() method return
-     * false if this device is not blacklisted by 1:1 Build.MANUFACTURER Build.MODEL match, only by Build.MODEL.
+     * false if this device is not blocklisted by 1:1 Build.MANUFACTURER Build.MODEL match, only by Build.MODEL.
      */
     @Test
     public fun test_blocklist_result_when_only_model_is_block_listed() {
