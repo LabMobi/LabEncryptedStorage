@@ -12,7 +12,7 @@ import io.reactivex.rxjava3.exceptions.UndeliverableException
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.Schedulers
 import mobi.lab.labencryptedstorage.LabEncryptedStorageManager
-import mobi.lab.labencryptedstorage.entity.StorageEncryptionType
+import mobi.lab.labencryptedstorage.entity.EncryptionPreferredType
 import mobi.lab.labencryptedstorage.inter.KeyValueStorage
 
 class MainActivity : AppCompatActivity() {
@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
             val blocklist = arrayOf("Google SomePixel", "Samsung SomeOtherDeviceModel")
             encryptionBlocklist(*blocklist)
             // Set the preferred encryption type if needed.
-            encryptionPreferredType(StorageEncryptionType.TeePreferred)
+            encryptionPreferredType(EncryptionPreferredType.Tee)
             // Build it
             build()
         }

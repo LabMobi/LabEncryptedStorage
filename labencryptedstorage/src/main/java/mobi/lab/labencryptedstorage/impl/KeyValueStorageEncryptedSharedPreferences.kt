@@ -14,7 +14,7 @@ import com.google.gson.TypeAdapterFactory
 import mobi.lab.labencryptedstorage.R
 import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
 import mobi.lab.labencryptedstorage.entity.SelectedStoragePersistenceId
-import mobi.lab.labencryptedstorage.entity.StorageEncryptionType
+import mobi.lab.labencryptedstorage.entity.EncryptionPreferredType
 import mobi.lab.labencryptedstorage.inter.KeyValueEncryptedStorage
 import mobi.lab.labencryptedstorage.internal.BundleTypeAdapterFactory
 import mobi.lab.labencryptedstorage.internal.exhaustive
@@ -29,7 +29,7 @@ import java.lang.reflect.Type
  */
 public class KeyValueStorageEncryptedSharedPreferences constructor(
     private val appContext: Context,
-    private var encryptionPreferredTypeInternal: StorageEncryptionType = StorageEncryptionType.TeePreferred,
+    private var encryptionPreferredTypeInternal: EncryptionPreferredType = EncryptionPreferredType.Tee,
     private val customGsonTypeAdapterFactories: Array<TypeAdapterFactory> = arrayOf(BundleTypeAdapterFactory())
 ) : KeyValueEncryptedStorage {
     private val gson: Gson
@@ -38,11 +38,11 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
         gson = createGson()
     }
 
-    override fun updateEncryptionPreferredType(actualEncryptionPreferredType: StorageEncryptionType) {
+    override fun updateEncryptionPreferredType(actualEncryptionPreferredType: EncryptionPreferredType) {
         this.encryptionPreferredTypeInternal = actualEncryptionPreferredType
     }
 
-    override fun getEncryptionPreferredType(): StorageEncryptionType {
+    override fun getEncryptionPreferredType(): EncryptionPreferredType {
         return encryptionPreferredTypeInternal
     }
 
@@ -122,8 +122,8 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
 
     override fun getSelectedStoragePersistenceId(): SelectedStoragePersistenceId {
         return when (encryptionPreferredTypeInternal) {
-            StorageEncryptionType.StrongBoxPreferred -> SelectedStoragePersistenceId.ENCRYPTED_STRONG_BOX_PREFERRED
-            StorageEncryptionType.TeePreferred -> SelectedStoragePersistenceId.ENCRYPTED_TEE_PREFERRED
+            EncryptionPreferredType.StrongBox -> SelectedStoragePersistenceId.ENCRYPTED_STRONG_BOX_PREFERRED
+            EncryptionPreferredType.Tee -> SelectedStoragePersistenceId.ENCRYPTED_TEE_PREFERRED
         }.exhaustive
     }
 
@@ -148,8 +148,8 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
 
     private fun getFromPreferredType(): Boolean {
         return when (encryptionPreferredTypeInternal) {
-            StorageEncryptionType.StrongBoxPreferred -> true
-            StorageEncryptionType.TeePreferred -> false
+            EncryptionPreferredType.StrongBox -> true
+            EncryptionPreferredType.Tee -> false
         }.exhaustive
     }
 

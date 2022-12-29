@@ -6,7 +6,7 @@ import androidx.annotation.VisibleForTesting
 import com.google.gson.reflect.TypeToken
 import mobi.lab.labencryptedstorage.LabEncryptedStorageManager.Builder
 import mobi.lab.labencryptedstorage.entity.SelectedStoragePersistenceId
-import mobi.lab.labencryptedstorage.entity.StorageEncryptionType
+import mobi.lab.labencryptedstorage.entity.EncryptionPreferredType
 import mobi.lab.labencryptedstorage.impl.KeyValueStorageClearTextSharedPreferences
 import mobi.lab.labencryptedstorage.impl.KeyValueStorageEncryptedSharedPreferences
 import mobi.lab.labencryptedstorage.impl.SimpleEncryptedStorageDeviceCompatibilityTester
@@ -161,12 +161,12 @@ public open class LabEncryptedStorageManager(
                 SelectedStoragePersistenceId.CLEAR_TEXT -> getSuppliedClearTextStorageImplementation()
                 SelectedStoragePersistenceId.ENCRYPTED_TEE_PREFERRED -> getSuppliedEncryptedStorageImplementation().apply {
                     updateEncryptionPreferredType(
-                        StorageEncryptionType.TeePreferred
+                        EncryptionPreferredType.Tee
                     )
                 }
                 SelectedStoragePersistenceId.ENCRYPTED_STRONG_BOX_PREFERRED -> getSuppliedEncryptedStorageImplementation().apply {
                     updateEncryptionPreferredType(
-                        StorageEncryptionType.StrongBoxPreferred
+                        EncryptionPreferredType.StrongBox
                     )
                 }
             }.exhaustive
@@ -177,7 +177,7 @@ public open class LabEncryptedStorageManager(
             // Legacy id
             getSuppliedEncryptedStorageImplementation().apply {
                 updateEncryptionPreferredType(
-                    StorageEncryptionType.TeePreferred
+                    EncryptionPreferredType.Tee
                 )
             }
         } else {
@@ -194,7 +194,7 @@ public open class LabEncryptedStorageManager(
     ) {
         private var encryptionEnabled: Boolean = true
         private var encryptionBlocklist: ArrayList<String> = arrayListOf()
-        private var encryptionPreferredType: StorageEncryptionType = StorageEncryptionType.TeePreferred
+        private var encryptionPreferredType: EncryptionPreferredType = EncryptionPreferredType.Tee
         private var encryptionDeviceCompatibilityTester: EncryptedStorageCompatibilityTester =
             SimpleEncryptedStorageDeviceCompatibilityTester()
 
@@ -220,13 +220,13 @@ public open class LabEncryptedStorageManager(
 
         /**
          * Set the preferred hardware key store based encryption element.
-         * Available options are [mobi.lab.labencryptedstorage.entity.StorageEncryptionType.TeePreferred] and
-         * [mobi.lab.labencryptedstorage.entity.StorageEncryptionType.StrongBoxPreferred].
+         * Available options are [mobi.lab.labencryptedstorage.entity.EncryptionPreferredType.Tee] and
+         * [mobi.lab.labencryptedstorage.entity.EncryptionPreferredType.StrongBox].
          * Default is the former.
          *
          * @param encryptionPreferredType Preferred type
          */
-        public fun encryptionPreferredType(encryptionPreferredType: StorageEncryptionType): Builder =
+        public fun encryptionPreferredType(encryptionPreferredType: EncryptionPreferredType): Builder =
             apply { this.encryptionPreferredType = encryptionPreferredType }
 
         /**
@@ -235,7 +235,7 @@ public open class LabEncryptedStorageManager(
          *
          * @param encryptionDeviceCompatibilityTester Implementation for tester to test if the encrypted storage works on this given device
          */
-        public fun hardwareKeyStoreBasedStorageEncryptionCompatibilityTester(
+        public fun encryptionDeviceCompatibilityTester(
             encryptionDeviceCompatibilityTester: EncryptedStorageCompatibilityTester
         ): Builder =
             apply { this.encryptionDeviceCompatibilityTester = encryptionDeviceCompatibilityTester }

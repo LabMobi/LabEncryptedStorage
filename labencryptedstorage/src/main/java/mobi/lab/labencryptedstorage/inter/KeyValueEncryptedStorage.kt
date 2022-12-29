@@ -1,6 +1,6 @@
 package mobi.lab.labencryptedstorage.inter
 
-import mobi.lab.labencryptedstorage.entity.StorageEncryptionType
+import mobi.lab.labencryptedstorage.entity.EncryptionPreferredType
 
 /**
  * Some TEE / Strongbox key based encrypted implementation of [KeyValueStorage].
@@ -11,12 +11,12 @@ public interface KeyValueEncryptedStorage : KeyValueStorage {
      *
      * @param actualEncryptionPreferredType actual StorageEncryptionType
      */
-    public fun updateEncryptionPreferredType(actualEncryptionPreferredType: StorageEncryptionType)
+    public fun updateEncryptionPreferredType(actualEncryptionPreferredType: EncryptionPreferredType)
 
     /**
      * Return the StorageEncryptionType.
      *
      * @return StorageEncryptionType
      */
-    public fun getEncryptionPreferredType(): StorageEncryptionType
+    public fun getEncryptionPreferredType(): EncryptionPreferredType
 }
