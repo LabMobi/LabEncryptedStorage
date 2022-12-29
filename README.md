@@ -26,18 +26,19 @@ Use the `LabEncryptedStorageManager.Builder` to get the manager instance:
 ```kotlin
 // Create a manager via the builder
 val manager = with(LabEncryptedStorageManager.Builder(this)) {
-	// Configure if needed
-	// For example, allow hardware-key based encrypted storage
-	encryptionEnabled(true)
-	// For example, add device that should not use encrypted storage ever
-	// First device
-	encryptionBlocklist("Samsung FirstDevice")
-	// Add multiple
-	val blocklist = arrayOf("Google SomePixel", "Samsung SomeOtherDeviceModel")
-	encryptionBlocklist(*blocklist)
-	// Build it
-	build()
-}
+    // Configure if needed
+    // For example, allow hardware-key based encrypted storage
+    encryptionEnabled(true)
+    // For example, add device that should not use encrypted storage ever
+    // First device
+    encryptionBlocklist("Samsung FirstDevice")
+    // Add multiple
+    val blocklist = arrayOf("Google SomePixel", "Samsung SomeOtherDeviceModel")
+    encryptionBlocklist(*blocklist)
+    // Set the preferred encryption type if needed.
+    encryptionPreferredType(StorageEncryptionType.TeePreferred)
+    // Build it
+    build()
 ```
 
 And then use the manager to select the storage implementation:
