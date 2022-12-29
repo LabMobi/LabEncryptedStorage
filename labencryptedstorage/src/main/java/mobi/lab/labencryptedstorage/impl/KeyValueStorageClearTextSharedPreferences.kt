@@ -11,6 +11,7 @@ import com.google.gson.JsonParseException
 import com.google.gson.TypeAdapterFactory
 import mobi.lab.labencryptedstorage.R
 import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
+import mobi.lab.labencryptedstorage.entity.SelectedStoragePersistenceId
 import mobi.lab.labencryptedstorage.inter.KeyValueClearTextStorage
 import mobi.lab.labencryptedstorage.internal.BundleTypeAdapterFactory
 import java.lang.reflect.Type
@@ -106,9 +107,8 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
         return "KeyValueStorageClearTextSharedPreferences"
     }
 
-    override fun getStorageId(): String {
-        // Warning - if this is changed then all storage choices will be broken
-        return "STORAGE_ID_KEY_VALUE_CLEAR_TEXT_SHARED_PREFERENCES"
+    override fun getSelectedStoragePersistenceId(): SelectedStoragePersistenceId {
+        return SelectedStoragePersistenceId.CLEAR_TEXT
     }
 
     private fun getSharedPrefsFor(filename: String): SharedPreferences {

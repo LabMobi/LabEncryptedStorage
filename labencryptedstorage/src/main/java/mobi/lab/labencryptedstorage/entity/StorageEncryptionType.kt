@@ -11,7 +11,11 @@ public sealed interface StorageEncryptionType {
      * Supported by a wide range of Android devices.
      * Faster option than [StrongBoxPreferred].
      */
-    public object TeePreferred : StorageEncryptionType
+    public object TeePreferred : StorageEncryptionType {
+        override fun toString(): String {
+            return "TEE preferred"
+        }
+    }
 
     /**
      * StrongBox Keymaster is preferred.
@@ -20,5 +24,9 @@ public sealed interface StorageEncryptionType {
      * Slower option than [StrongBoxPreferred].
      * If not available then the system will default to [TeePreferred].
      */
-    public object StrongBoxPreferred : StorageEncryptionType
+    public object StrongBoxPreferred : StorageEncryptionType {
+        override fun toString(): String {
+            return "StrongBox Keymaster preferred"
+        }
+    }
 }

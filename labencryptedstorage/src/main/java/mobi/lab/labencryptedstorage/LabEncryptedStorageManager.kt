@@ -2,8 +2,10 @@ package mobi.lab.labencryptedstorage
 
 import android.content.Context
 import android.os.Build
+import androidx.annotation.VisibleForTesting
 import com.google.gson.reflect.TypeToken
 import mobi.lab.labencryptedstorage.LabEncryptedStorageManager.Builder
+import mobi.lab.labencryptedstorage.entity.SelectedStoragePersistenceId
 import mobi.lab.labencryptedstorage.entity.StorageEncryptionType
 import mobi.lab.labencryptedstorage.impl.KeyValueStorageClearTextSharedPreferences
 import mobi.lab.labencryptedstorage.impl.KeyValueStorageEncryptedSharedPreferences
@@ -13,19 +15,17 @@ import mobi.lab.labencryptedstorage.inter.KeyValueClearTextStorage
 import mobi.lab.labencryptedstorage.inter.KeyValueEncryptedStorage
 import mobi.lab.labencryptedstorage.inter.KeyValueStorage
 import mobi.lab.labencryptedstorage.inter.LabEncryptedStorageManagerInterface
+import mobi.lab.labencryptedstorage.internal.exhaustive
 
 /**
  * Storage manager instance.
  * Use the builder [Builder] to configure the instance.
  *
  * @property applicationContext Context
- * @property hardwareKeyStoreBasedStorageEncryptionEnabled if hardware key store based encryption is allowed.
- * @property hardwareKeyStoreBasedStorageEncryptionBlocklist if there are any specific devices for which hardware
+ * @property encryptionEnabled if hardware key store based encryption is allowed.
+ * @property encryptionBlocklist if there are any specific devices for which hardware
  * key store based encryption should never be allowed.
  * Device info in the form of ["manufacturer1 model1","manufacturer2 model2"].
- * @property hardwareKeyStoreBasedStorageEncryptionType Set the preferred hardware key store based encryption element
- * Available options are [mobi.lab.labencryptedstorage.entity.StorageEncryptionType.TeePreferred] and
- * [mobi.lab.labencryptedstorage.entity.StorageEncryptionType.StrongBoxPreferred].
  * @property internalChoiceStorage Implementation for internal storage where to remember the storage choice.
  * Used for remembering the selected storage. Usually the same as [clearTextStorage].
  * @property clearTextStorage Implementation for the clear-text storage.
@@ -38,9 +38,8 @@ import mobi.lab.labencryptedstorage.inter.LabEncryptedStorageManagerInterface
 @Suppress("LongParameterList")
 public open class LabEncryptedStorageManager(
     private val applicationContext: Context,
-    private val hardwareKeyStoreBasedStorageEncryptionEnabled: Boolean,
-    private val hardwareKeyStoreBasedStorageEncryptionBlocklist: List<String>,
-    private var hardwareKeyStoreBasedStorageEncryptionType: StorageEncryptionType,
+    private val encryptionEnabled: Boolean,
+    private val encryptionBlocklist: List<String>,
     private val internalChoiceStorage: KeyValueClearTextStorage,
     private val clearTextStorage: KeyValueClearTextStorage,
     private val hardwareKeyStoreBasedEncryptedStorage: KeyValueEncryptedStorage,
@@ -69,7 +68,7 @@ public open class LabEncryptedStorageManager(
 
     @Suppress("RedundantIf")
     private fun shouldUseClearTextStorage(): Boolean {
-        return if (!hardwareKeyStoreBasedStorageEncryptionEnabled) {
+        return if (!encryptionEnabled) {
             true
         } else if (hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice()) {
             true
@@ -80,10 +79,11 @@ public open class LabEncryptedStorageManager(
         }
     }
 
+    @VisibleForTesting
     internal fun hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice(): Boolean {
         // Device info in the form of ["manufacturer1 model1","manufacturer2 model2"]
         val currentDeviceManufacturerModel = "${Build.MANUFACTURER} ${Build.MODEL}"
-        for (deviceManufacturerModel in hardwareKeyStoreBasedStorageEncryptionBlocklist) {
+        for (deviceManufacturerModel in encryptionBlocklist) {
             // Just in case we want to compare in original form, in lowercase and with input trimmed also.
             if (
                 deviceManufacturerModel == currentDeviceManufacturerModel ||
@@ -139,7 +139,7 @@ public open class LabEncryptedStorageManager(
      * @param storage Selected KeyValueStorage
      */
     private fun setLastSelectedStorageImpl(storage: KeyValueStorage) {
-        getSelectionStorage().store(LAST_STORAGE_IMPL_SELECTION_TAG, storage.getStorageId())
+        getSelectionStorage().store(LAST_STORAGE_IMPL_SELECTION_TAG, storage.getSelectedStoragePersistenceId().name)
     }
 
     public override fun getSuppliedInternalChoiceStorageImplementation(): KeyValueClearTextStorage {
@@ -154,17 +154,34 @@ public open class LabEncryptedStorageManager(
         return hardwareKeyStoreBasedEncryptedStorage
     }
 
-    private fun storageIdToStorageImplementation(id: String?): KeyValueStorage? {
-        return when (id) {
-            getSuppliedClearTextStorageImplementation().getStorageId() -> {
-                getSuppliedClearTextStorageImplementation()
+    private fun storageIdToStorageImplementation(name: String?): KeyValueStorage? {
+        val selectedStoragePersistenceId = SelectedStoragePersistenceId.byNameOrNull(name)
+        return if (selectedStoragePersistenceId != null) {
+            when (selectedStoragePersistenceId) {
+                SelectedStoragePersistenceId.CLEAR_TEXT -> getSuppliedClearTextStorageImplementation()
+                SelectedStoragePersistenceId.ENCRYPTED_TEE_PREFERRED -> getSuppliedEncryptedStorageImplementation().apply {
+                    updateEncryptionPreferredType(
+                        StorageEncryptionType.TeePreferred
+                    )
+                }
+                SelectedStoragePersistenceId.ENCRYPTED_STRONG_BOX_PREFERRED -> getSuppliedEncryptedStorageImplementation().apply {
+                    updateEncryptionPreferredType(
+                        StorageEncryptionType.StrongBoxPreferred
+                    )
+                }
+            }.exhaustive
+        } else if (name == "STORAGE_ID_KEY_VALUE_CLEAR_TEXT_SHARED_PREFERENCES") {
+            // Legacy id
+            getSuppliedClearTextStorageImplementation()
+        } else if (name == "STORAGE_ID_KEY_VALUE_ENCRYPTED_SHARED_PREFERENCES") {
+            // Legacy id
+            getSuppliedEncryptedStorageImplementation().apply {
+                updateEncryptionPreferredType(
+                    StorageEncryptionType.TeePreferred
+                )
             }
-            getSuppliedEncryptedStorageImplementation().getStorageId() -> {
-                return getSuppliedEncryptedStorageImplementation()
-            }
-            else -> {
-                null
-            }
+        } else {
+            null
         }
     }
 
@@ -175,22 +192,20 @@ public open class LabEncryptedStorageManager(
     public data class Builder(
         private val applicationContext: Context
     ) {
-        private var hardwareKeyStoreBasedStorageEncryptionEnabled: Boolean = true
-        private var hardwareKeyStoreBasedStorageEncryptionBlocklist: ArrayList<String> = arrayListOf()
-        private var hardwareKeyStoreBasedStorageEncryptionType: StorageEncryptionType = StorageEncryptionType.TeePreferred
-        private var clearTextStorage: KeyValueClearTextStorage = KeyValueStorageClearTextSharedPreferences(applicationContext)
-        private val internalChoiceStorage: KeyValueClearTextStorage = clearTextStorage
-        private var encryptedStorage: KeyValueEncryptedStorage = KeyValueStorageEncryptedSharedPreferences(applicationContext)
-        private var storageCompatibilityTester: EncryptedStorageCompatibilityTester = SimpleEncryptedStorageDeviceCompatibilityTester()
+        private var encryptionEnabled: Boolean = true
+        private var encryptionBlocklist: ArrayList<String> = arrayListOf()
+        private var encryptionPreferredType: StorageEncryptionType = StorageEncryptionType.TeePreferred
+        private var encryptionDeviceCompatibilityTester: EncryptedStorageCompatibilityTester =
+            SimpleEncryptedStorageDeviceCompatibilityTester()
 
         /**
          * If hardware key store based encryption is allowed.
          * Default: true
          *
-         * @param hardwareKeyStoreBasedStorageEncryptionEnabled true/false
+         * @param encryptionEnabled true/false
          */
-        public fun hardwareKeyStoreBasedStorageEncryptionEnabled(hardwareKeyStoreBasedStorageEncryptionEnabled: Boolean): Builder =
-            apply { this.hardwareKeyStoreBasedStorageEncryptionEnabled = hardwareKeyStoreBasedStorageEncryptionEnabled }
+        public fun encryptionEnabled(encryptionEnabled: Boolean): Builder =
+            apply { this.encryptionEnabled = encryptionEnabled }
 
         /**
          * If there are any specific devices for which hardware
@@ -198,68 +213,49 @@ public open class LabEncryptedStorageManager(
          * Device info in the form of ["manufacturer1 model1","manufacturer2 model2"].
          * Default: none.
          *
-         * @param deviceManufacturerAndModel List of "manufacturer1 model1","manufacturer2 model2"
+         * @param blockedDeviceManufacturerAndModel List of "manufacturer1 model1","manufacturer2 model2"
          */
-        public fun hardwareKeyStoreBasedStorageEncryptionBlocklist(vararg deviceManufacturerAndModel: String): Builder =
-            apply { this.hardwareKeyStoreBasedStorageEncryptionBlocklist.addAll(deviceManufacturerAndModel) }
+        public fun encryptionBlocklist(vararg blockedDeviceManufacturerAndModel: String): Builder =
+            apply { this.encryptionBlocklist.addAll(blockedDeviceManufacturerAndModel) }
 
         /**
          * Set the preferred hardware key store based encryption element.
          * Available options are [mobi.lab.labencryptedstorage.entity.StorageEncryptionType.TeePreferred] and
          * [mobi.lab.labencryptedstorage.entity.StorageEncryptionType.StrongBoxPreferred].
          * Default is the former.
-         */
-        public fun hardwareKeyStoreBasedStorageEncryptionType(hardwareKeyStoreBasedStorageEncryptionType: StorageEncryptionType): Builder =
-            apply { this.hardwareKeyStoreBasedStorageEncryptionType = hardwareKeyStoreBasedStorageEncryptionType }
-
-        /**
          *
-         * Override implementation for the clear-text storage.
-         * WARNING: In 99% of cases you do not want to set this.
-         * If a storage is already decided and
-         * this is override then all the already written values will become unreadable!
-         * Used for fallback flow and remembering the selected storage.
-         * Default: [KeyValueStorageClearTextSharedPreferences].
-         *
-         * @param clearTextStorageOverride Implementation for the clear-text storage.
+         * @param encryptionPreferredType Preferred type
          */
-        public fun overrideClearTextStorage(clearTextStorageOverride: KeyValueClearTextStorage): Builder =
-            apply { this.clearTextStorage = clearTextStorageOverride }
-
-        /**
-         * Override implementation for the encrypted storage.
-         * WARNING: In 99% of cases you do not want to set this.
-         * If a storage is already decided and
-         * this is override then all the already written values will become unreadable!
-         * Used if allowed and storageCompatibilityTester shows the device supports it.
-         * Default: [KeyValueStorageEncryptedSharedPreferences].
-         *
-         * @param encryptedStorageOverride Implementation for the encrypted  storage.
-         */
-        public fun overrideEncryptedTextStorageImplementation(encryptedStorageOverride: KeyValueEncryptedStorage): Builder =
-            apply { this.encryptedStorage = encryptedStorageOverride }
+        public fun encryptionPreferredType(encryptionPreferredType: StorageEncryptionType): Builder =
+            apply { this.encryptionPreferredType = encryptionPreferredType }
 
         /**
          * Implementation for tester to test if the encrypted storage works on this given device.
          * Default: [SimpleEncryptedStorageDeviceCompatibilityTester].
-         * @param storageCompatibilityTester Implementation for tester to test if the encrypted storage works on this given device
+         *
+         * @param encryptionDeviceCompatibilityTester Implementation for tester to test if the encrypted storage works on this given device
          */
-        public fun storageCompatibilityTester(storageCompatibilityTester: EncryptedStorageCompatibilityTester): Builder =
-            apply { this.storageCompatibilityTester = storageCompatibilityTester }
+        public fun hardwareKeyStoreBasedStorageEncryptionCompatibilityTester(encryptionDeviceCompatibilityTester: EncryptedStorageCompatibilityTester): Builder =
+            apply { this.encryptionDeviceCompatibilityTester = encryptionDeviceCompatibilityTester }
 
         /**
          * Build an instance of [LabEncryptedStorageManager].
          */
-        public fun build(): LabEncryptedStorageManager = LabEncryptedStorageManager(
-            applicationContext = applicationContext.applicationContext,
-            hardwareKeyStoreBasedStorageEncryptionEnabled = hardwareKeyStoreBasedStorageEncryptionEnabled,
-            hardwareKeyStoreBasedStorageEncryptionBlocklist = hardwareKeyStoreBasedStorageEncryptionBlocklist,
-            hardwareKeyStoreBasedStorageEncryptionType = hardwareKeyStoreBasedStorageEncryptionType,
-            internalChoiceStorage = internalChoiceStorage,
-            clearTextStorage = clearTextStorage,
-            hardwareKeyStoreBasedEncryptedStorage = encryptedStorage,
-            hardwareKeyStoreBasedEncryptedStorageCompatibilityTester = storageCompatibilityTester,
-        )
+        public fun build(): LabEncryptedStorageManager {
+            val clearTextStorage = KeyValueStorageClearTextSharedPreferences(applicationContext.applicationContext)
+            return LabEncryptedStorageManager(
+                applicationContext = applicationContext.applicationContext,
+                encryptionEnabled = encryptionEnabled,
+                encryptionBlocklist = encryptionBlocklist,
+                clearTextStorage = clearTextStorage,
+                internalChoiceStorage = clearTextStorage,
+                hardwareKeyStoreBasedEncryptedStorage = KeyValueStorageEncryptedSharedPreferences(
+                    applicationContext.applicationContext,
+                    encryptionPreferredType
+                ),
+                hardwareKeyStoreBasedEncryptedStorageCompatibilityTester = encryptionDeviceCompatibilityTester,
+            )
+        }
     }
 
     private companion object {

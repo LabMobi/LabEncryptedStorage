@@ -13,8 +13,11 @@ import com.google.gson.JsonSyntaxException
 import com.google.gson.TypeAdapterFactory
 import mobi.lab.labencryptedstorage.R
 import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
+import mobi.lab.labencryptedstorage.entity.SelectedStoragePersistenceId
+import mobi.lab.labencryptedstorage.entity.StorageEncryptionType
 import mobi.lab.labencryptedstorage.inter.KeyValueEncryptedStorage
 import mobi.lab.labencryptedstorage.internal.BundleTypeAdapterFactory
+import mobi.lab.labencryptedstorage.internal.exhaustive
 import java.lang.reflect.Type
 
 /**
@@ -26,12 +29,21 @@ import java.lang.reflect.Type
  */
 public class KeyValueStorageEncryptedSharedPreferences constructor(
     private val appContext: Context,
+    private var encryptionPreferredTypeInternal: StorageEncryptionType = StorageEncryptionType.TeePreferred,
     private val customGsonTypeAdapterFactories: Array<TypeAdapterFactory> = arrayOf(BundleTypeAdapterFactory())
 ) : KeyValueEncryptedStorage {
     private val gson: Gson
 
     init {
         gson = createGson()
+    }
+
+    override fun updateEncryptionPreferredType(actualEncryptionPreferredType: StorageEncryptionType) {
+        this.encryptionPreferredTypeInternal = actualEncryptionPreferredType
+    }
+
+    override fun getEncryptionPreferredType(): StorageEncryptionType {
+        return encryptionPreferredTypeInternal
     }
 
     @SuppressLint("ApplySharedPref")
@@ -105,12 +117,14 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
     }
 
     override fun getStorageName(): String {
-        return "KeyValueStorageEncryptedSharedPreferences"
+        return "KeyValueStorageEncryptedSharedPreferences with $encryptionPreferredTypeInternal"
     }
 
-    override fun getStorageId(): String {
-        // Warning - if this is changed then all storage choices will be broken
-        return "STORAGE_ID_KEY_VALUE_ENCRYPTED_SHARED_PREFERENCES"
+    override fun getSelectedStoragePersistenceId(): SelectedStoragePersistenceId {
+        return when (encryptionPreferredTypeInternal) {
+            StorageEncryptionType.StrongBoxPreferred -> SelectedStoragePersistenceId.ENCRYPTED_STRONG_BOX_PREFERRED
+            StorageEncryptionType.TeePreferred -> SelectedStoragePersistenceId.ENCRYPTED_TEE_PREFERRED
+        }.exhaustive
     }
 
     private fun getEncryptedSharedPreferencesFor(filename: String): SharedPreferences {
@@ -126,12 +140,17 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
     }
 
     private fun createOrGetMasterKey(): MasterKey {
-        // Note setRequestStrongBoxBacked is set to false for speed reasons for now.
-        // Will be configurable in the future.
         return MasterKey.Builder(appContext, STORAGE_MASTER_KEY_ALIAS)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .setRequestStrongBoxBacked(false)
+            .setRequestStrongBoxBacked(getFromPreferredType())
             .build()
+    }
+
+    private fun getFromPreferredType(): Boolean {
+        return when (encryptionPreferredTypeInternal) {
+            StorageEncryptionType.StrongBoxPreferred -> true
+            StorageEncryptionType.TeePreferred -> false
+        }.exhaustive
     }
 
     private fun getStoragePrefix(tag: String): String {

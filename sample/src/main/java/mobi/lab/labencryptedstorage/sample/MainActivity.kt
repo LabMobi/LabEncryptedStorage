@@ -12,6 +12,7 @@ import io.reactivex.rxjava3.exceptions.UndeliverableException
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.schedulers.Schedulers
 import mobi.lab.labencryptedstorage.LabEncryptedStorageManager
+import mobi.lab.labencryptedstorage.entity.StorageEncryptionType
 import mobi.lab.labencryptedstorage.inter.KeyValueStorage
 
 class MainActivity : AppCompatActivity() {
@@ -33,13 +34,15 @@ class MainActivity : AppCompatActivity() {
         val manager = with(LabEncryptedStorageManager.Builder(this)) {
             // Configure if needed
             // For example, allow hardware-key based encrypted storage
-            hardwareKeyStoreBasedStorageEncryptionEnabled(true)
+            encryptionEnabled(true)
             // For example, add device that should not use encrypted storage ever
             // First device
-            hardwareKeyStoreBasedStorageEncryptionBlocklist("Samsung FirstDevice")
+            encryptionBlocklist("Samsung FirstDevice")
             // Add multiple
             val blocklist = arrayOf("Google SomePixel", "Samsung SomeOtherDeviceModel")
-            hardwareKeyStoreBasedStorageEncryptionBlocklist(*blocklist)
+            encryptionBlocklist(*blocklist)
+            // Set the preferred encryption type if needed.
+            encryptionPreferredType(StorageEncryptionType.TeePreferred)
             // Build it
             build()
         }

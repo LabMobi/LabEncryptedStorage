@@ -1,6 +1,7 @@
 package mobi.lab.labencryptedstorage.inter
 
 import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
+import mobi.lab.labencryptedstorage.entity.SelectedStoragePersistenceId
 import java.lang.reflect.Type
 
 /**
@@ -45,7 +46,7 @@ public interface KeyValueStorage {
     /**
      * Unique id used to remember the storage choice.
      *
-     * @return id
+     * @return SelectedStoragePersistenceId
      */
-    public fun getStorageId(): String
+    public fun getSelectedStoragePersistenceId(): SelectedStoragePersistenceId
 }

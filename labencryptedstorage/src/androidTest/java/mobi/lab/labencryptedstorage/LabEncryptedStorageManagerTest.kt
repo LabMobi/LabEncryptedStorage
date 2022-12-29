@@ -39,7 +39,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_if_storage_is_selected_then_encryption_disabled_boolean_does_not_count() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .hardwareKeyStoreBasedStorageEncryptionEnabled(false)
+            .encryptionEnabled(false)
             .build()
         val implSpy = spy(impl)
         // KeyValueStorageEncryptedSharedPreferences is last selected
@@ -59,7 +59,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_if_storage_is_not_selected_then_encryption_disabled_boolean_does_count() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .hardwareKeyStoreBasedStorageEncryptionEnabled(false)
+            .encryptionEnabled(false)
             .build()
         val implSpy = spy(impl)
         // Nothing selected
@@ -79,7 +79,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_if_storage_is_selected_then_device_disallowed_does_not_count() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .hardwareKeyStoreBasedStorageEncryptionBlocklist("${Build.MANUFACTURER} ${Build.MODEL}")
+            .encryptionBlocklist("${Build.MANUFACTURER} ${Build.MODEL}")
             .build()
         val implSpy = spy(impl)
         // KeyValueStorageEncryptedSharedPreferences is last selected
@@ -99,7 +99,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_if_storage_is_not_selected_then_device_disallowed_does_count() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .hardwareKeyStoreBasedStorageEncryptionBlocklist("${Build.MANUFACTURER} ${Build.MODEL}")
+            .encryptionBlocklist("${Build.MANUFACTURER} ${Build.MODEL}")
             .build()
         val implSpy = spy(impl)
         // Nothing selected
@@ -119,7 +119,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_if_storage_is_selected_then_test_failed_does_not_count() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .storageCompatibilityTester(deviceTesterThatThrows)
+            .hardwareKeyStoreBasedStorageEncryptionCompatibilityTester(deviceTesterThatThrows)
             .build()
         val implSpy = spy(impl)
         // KeyValueStorageEncryptedSharedPreferences is last selected
@@ -139,7 +139,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_if_storage_is_not_selected_then_test_failed_does_count() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .storageCompatibilityTester(deviceTesterThatThrows)
+            .hardwareKeyStoreBasedStorageEncryptionCompatibilityTester(deviceTesterThatThrows)
             .build()
         val implSpy = spy(impl)
         // Nothing selected
@@ -159,8 +159,8 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_if_storage_is_not_selected_and_encrypted_storage_is_allowed_then_it_is_returned() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .hardwareKeyStoreBasedStorageEncryptionEnabled(true)
-            .storageCompatibilityTester(deviceTesterThatSucceeds)
+            .encryptionEnabled(true)
+            .hardwareKeyStoreBasedStorageEncryptionCompatibilityTester(deviceTesterThatSucceeds)
             .build()
         val implSpy = spy(impl)
         // Nothing selected
@@ -180,7 +180,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_device_does_not_support_encrypted_storage() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .storageCompatibilityTester(deviceTesterThatThrows)
+            .hardwareKeyStoreBasedStorageEncryptionCompatibilityTester(deviceTesterThatThrows)
             .build()
         assertFalse(
             impl.deviceSupportsEncryptedStorage(),
@@ -194,7 +194,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_device_does_support_encrypted_storage() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .storageCompatibilityTester(deviceTesterThatSucceeds)
+            .hardwareKeyStoreBasedStorageEncryptionCompatibilityTester(deviceTesterThatSucceeds)
             .build()
         assertTrue(impl.deviceSupportsEncryptedStorage(), "Device support encrypted storage when test succeeded!")
     }
@@ -205,7 +205,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_blocklist_result_when_device_block_listed() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .hardwareKeyStoreBasedStorageEncryptionBlocklist("${Build.MANUFACTURER} ${Build.MODEL}")
+            .encryptionBlocklist("${Build.MANUFACTURER} ${Build.MODEL}")
             .build()
         assertTrue(impl.hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice())
     }
@@ -217,7 +217,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_blocklist_result_when_only_manufacturer_is_block_listed() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .hardwareKeyStoreBasedStorageEncryptionBlocklist(Build.MANUFACTURER)
+            .encryptionBlocklist(Build.MANUFACTURER)
             .build()
         assertFalse(impl.hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice())
     }
@@ -229,7 +229,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_blocklist_result_when_only_model_is_block_listed() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .hardwareKeyStoreBasedStorageEncryptionBlocklist(Build.MODEL)
+            .encryptionBlocklist(Build.MODEL)
             .build()
         assertFalse(impl.hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice())
     }
@@ -241,7 +241,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_blocklist_result_when_different_case() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .hardwareKeyStoreBasedStorageEncryptionBlocklist("${Build.MANUFACTURER} ${Build.MODEL}".uppercase())
+            .encryptionBlocklist("${Build.MANUFACTURER} ${Build.MODEL}".uppercase())
             .build()
         assertTrue(impl.hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice())
     }
@@ -253,7 +253,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_blocklist_result_when_extra_whitespace() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .hardwareKeyStoreBasedStorageEncryptionBlocklist(" ${Build.MANUFACTURER} ${Build.MODEL}")
+            .encryptionBlocklist(" ${Build.MANUFACTURER} ${Build.MODEL}")
             .build()
         assertTrue(impl.hardwareKeyStoreBasedStorageEncryptionDisabledForThisDevice())
     }

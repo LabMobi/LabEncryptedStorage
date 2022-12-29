@@ -28,13 +28,13 @@ Use the `LabEncryptedStorageManager.Builder` to get the manager instance:
 val manager = with(LabEncryptedStorageManager.Builder(this)) {
 	// Configure if needed
 	// For example, allow hardware-key based encrypted storage
-	hardwareKeyStoreBasedStorageEncryptionEnabled(true)
+	encryptionEnabled(true)
 	// For example, add device that should not use encrypted storage ever
 	// First device
-	hardwareKeyStoreBasedStorageEncryptionBlocklist("Samsung FirstDevice")
+	encryptionBlocklist("Samsung FirstDevice")
 	// Add multiple
 	val blocklist = arrayOf("Google SomePixel", "Samsung SomeOtherDeviceModel")
-	hardwareKeyStoreBasedStorageEncryptionBlocklist(*blocklist)
+	encryptionBlocklist(*blocklist)
 	// Build it
 	build()
 }
