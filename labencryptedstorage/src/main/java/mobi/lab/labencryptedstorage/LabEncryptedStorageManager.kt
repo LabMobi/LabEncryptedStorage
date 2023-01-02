@@ -170,16 +170,6 @@ public open class LabEncryptedStorageManager(
                     )
                 }
             }.exhaustive
-        } else if (name == "STORAGE_ID_KEY_VALUE_CLEAR_TEXT_SHARED_PREFERENCES") {
-            // Legacy id
-            getSuppliedClearTextStorageImplementation()
-        } else if (name == "STORAGE_ID_KEY_VALUE_ENCRYPTED_SHARED_PREFERENCES") {
-            // Legacy id
-            getSuppliedEncryptedStorageImplementation().apply {
-                updateEncryptionPreferredType(
-                    EncryptionPreferredType.Tee
-                )
-            }
         } else {
             null
         }
