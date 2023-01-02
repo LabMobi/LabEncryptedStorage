@@ -12,9 +12,12 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
 import com.google.gson.TypeAdapterFactory
 import mobi.lab.labencryptedstorage.R
+import mobi.lab.labencryptedstorage.entity.EncryptionPreferredType
 import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
+import mobi.lab.labencryptedstorage.entity.SelectedStoragePersistenceId
 import mobi.lab.labencryptedstorage.inter.KeyValueEncryptedStorage
 import mobi.lab.labencryptedstorage.internal.BundleTypeAdapterFactory
+import mobi.lab.labencryptedstorage.internal.exhaustive
 import java.lang.reflect.Type
 
 /**
@@ -26,6 +29,7 @@ import java.lang.reflect.Type
  */
 public class KeyValueStorageEncryptedSharedPreferences constructor(
     private val appContext: Context,
+    private var encryptionPreferredTypeInternal: EncryptionPreferredType = EncryptionPreferredType.Tee,
     private val customGsonTypeAdapterFactories: Array<TypeAdapterFactory> = arrayOf(BundleTypeAdapterFactory())
 ) : KeyValueEncryptedStorage {
     private val gson: Gson
@@ -34,10 +38,18 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
         gson = createGson()
     }
 
+    override fun updateEncryptionPreferredType(actualEncryptionPreferredType: EncryptionPreferredType) {
+        this.encryptionPreferredTypeInternal = actualEncryptionPreferredType
+    }
+
+    override fun getEncryptionPreferredType(): EncryptionPreferredType {
+        return encryptionPreferredTypeInternal
+    }
+
     @SuppressLint("ApplySharedPref")
     @Suppress("SwallowedException")
     override fun store(key: String, value: Any?) {
-        val pref = getEncryptedSharedPreferencesFor(getStoragePrefix(key))
+        val pref = getEncryptedSharedPreferencesFor(key)
 
         // Convert the result to JSON and store
         val dataJson = if (value != null) gson.toJson(value) else null
@@ -48,17 +60,17 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
         // If fail then we try to restore the old value and throw an Exception
         try {
             // Get a copy of the old data
-            val oldDataJson = pref.getString(getPrimaryDataKey(key), null)
+            val oldDataJson = pref.getString(key, null)
             val success: Boolean = try {
                 // Write the new one to storage it to storage
-                pref.edit().putString(getPrimaryDataKey(key), dataJson).commit()
+                pref.edit().putString(key, dataJson).commit()
             } catch (e: Throwable) {
                 false
             }
             if (!success) {
                 // Restore the memory cache value to the old one
                 try {
-                    pref.edit().putString(getPrimaryDataKey(key), oldDataJson).commit()
+                    pref.edit().putString(key, oldDataJson).commit()
                 } catch (e: Throwable) {
                     // Ignore any and all errors from there
                 }
@@ -71,10 +83,10 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
 
     @Suppress("SwallowedException")
     override fun <T> read(key: String, valueType: Type): T? {
-        val pref = getEncryptedSharedPreferencesFor(getStoragePrefix(key))
+        val pref = getEncryptedSharedPreferencesFor(key)
 
         // Get the value if we have any
-        val dataJson = pref.getString(getPrimaryDataKey(key), null)
+        val dataJson = pref.getString(key, null)
         if (TextUtils.isEmpty(dataJson)) {
             return null // We have nothing stored here
         }
@@ -90,11 +102,11 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
     @Suppress("SwallowedException")
     override fun delete(key: String) {
         try {
-            val pref = getEncryptedSharedPreferencesFor(getStoragePrefix(key))
-            pref.edit().remove(getPrimaryDataKey(key)).commit()
+            val pref = getEncryptedSharedPreferencesFor(key)
+            pref.edit().remove(key).commit()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 try {
-                    appContext.deleteSharedPreferences(getStoragePrefix(key))
+                    appContext.deleteSharedPreferences(key)
                 } catch (e: Throwable) {
                     // Swallow, we do not care about the result or any exceptions
                 }
@@ -105,12 +117,14 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
     }
 
     override fun getStorageName(): String {
-        return "KeyValueStorageEncryptedSharedPreferences"
+        return "KeyValueStorageEncryptedSharedPreferences with $encryptionPreferredTypeInternal"
     }
 
-    override fun getStorageId(): String {
-        // Warning - if this is changed then all storage choices will be broken
-        return "STORAGE_ID_KEY_VALUE_ENCRYPTED_SHARED_PREFERENCES"
+    override fun getSelectedStoragePersistenceId(): SelectedStoragePersistenceId {
+        return when (encryptionPreferredTypeInternal) {
+            EncryptionPreferredType.StrongBox -> SelectedStoragePersistenceId.ENCRYPTED_STRONG_BOX_PREFERRED
+            EncryptionPreferredType.Tee -> SelectedStoragePersistenceId.ENCRYPTED_TEE_PREFERRED
+        }.exhaustive
     }
 
     private fun getEncryptedSharedPreferencesFor(filename: String): SharedPreferences {
@@ -126,20 +140,17 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
     }
 
     private fun createOrGetMasterKey(): MasterKey {
-        // Note setRequestStrongBoxBacked is set to false for speed reasons for now.
-        // Will be configurable in the future.
         return MasterKey.Builder(appContext, STORAGE_MASTER_KEY_ALIAS)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .setRequestStrongBoxBacked(false)
+            .setRequestStrongBoxBacked(getIsStrongBoxBackedFromEncryptionPreferredTypeValue())
             .build()
     }
 
-    private fun getStoragePrefix(tag: String): String {
-        return "$STORAGE_BASE_ID.$tag"
-    }
-
-    private fun getPrimaryDataKey(tag: String): String {
-        return "$STORAGE_BASE_ID.$tag"
+    private fun getIsStrongBoxBackedFromEncryptionPreferredTypeValue(): Boolean {
+        return when (encryptionPreferredTypeInternal) {
+            EncryptionPreferredType.StrongBox -> true
+            EncryptionPreferredType.Tee -> false
+        }.exhaustive
     }
 
     private fun createGson(): Gson {
@@ -152,6 +163,5 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
 
     private companion object {
         const val STORAGE_MASTER_KEY_ALIAS: String = "mobi.lab.labencryptedstorage_master_key_1"
-        const val STORAGE_BASE_ID: String = "les_e"
     }
 }

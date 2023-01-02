@@ -11,6 +11,7 @@ import com.google.gson.JsonParseException
 import com.google.gson.TypeAdapterFactory
 import mobi.lab.labencryptedstorage.R
 import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
+import mobi.lab.labencryptedstorage.entity.SelectedStoragePersistenceId
 import mobi.lab.labencryptedstorage.inter.KeyValueClearTextStorage
 import mobi.lab.labencryptedstorage.internal.BundleTypeAdapterFactory
 import java.lang.reflect.Type
@@ -35,7 +36,7 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
     @SuppressLint("ApplySharedPref")
     @Suppress("SwallowedException")
     override fun store(key: String, value: Any?) {
-        val pref = getSharedPrefsFor(getStoragePrefix(key))
+        val pref = getSharedPrefsFor(key)
 
         // Convert the result to JSON and store
         val dataJson = if (value != null) gson.toJson(value) else null
@@ -46,17 +47,17 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
         // If fail then we try to restore the old value and throw an Exception
         try {
             // Get a copy of the old data
-            val oldDataJson = pref.getString(getPrimaryDataKey(key), null)
+            val oldDataJson = pref.getString(key, null)
             val success: Boolean = try {
                 // Write the new one to storage it to storage
-                pref.edit().putString(getPrimaryDataKey(key), dataJson).commit()
+                pref.edit().putString(key, dataJson).commit()
             } catch (e: Throwable) {
                 false
             }
             if (!success) {
                 // Restore the memory cache value to the old one
                 try {
-                    pref.edit().putString(getPrimaryDataKey(key), oldDataJson).commit()
+                    pref.edit().putString(key, oldDataJson).commit()
                 } catch (e: Throwable) {
                     // Ignore any and all errors from there
                 }
@@ -69,10 +70,10 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
 
     @Suppress("SwallowedException")
     override fun <T> read(key: String, valueType: Type): T? {
-        val pref = getSharedPrefsFor(getStoragePrefix(key))
+        val pref = getSharedPrefsFor(key)
 
         // Get the value if we have any
-        val dataJson = pref.getString(getPrimaryDataKey(key), null)
+        val dataJson = pref.getString(key, null)
         if (TextUtils.isEmpty(dataJson)) {
             return null // We have nothing stored here
         }
@@ -88,11 +89,11 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
     @Suppress("SwallowedException")
     override fun delete(key: String) {
         try {
-            val pref = getSharedPrefsFor(getStoragePrefix(key))
-            pref.edit().remove(getPrimaryDataKey(key)).commit()
+            val pref = getSharedPrefsFor(key)
+            pref.edit().remove(key).commit()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 try {
-                    appContext.deleteSharedPreferences(getStoragePrefix(key))
+                    appContext.deleteSharedPreferences(key)
                 } catch (e: Throwable) {
                     // Swallow, we do not care about the result or any exceptions
                 }
@@ -106,21 +107,12 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
         return "KeyValueStorageClearTextSharedPreferences"
     }
 
-    override fun getStorageId(): String {
-        // Warning - if this is changed then all storage choices will be broken
-        return "STORAGE_ID_KEY_VALUE_CLEAR_TEXT_SHARED_PREFERENCES"
+    override fun getSelectedStoragePersistenceId(): SelectedStoragePersistenceId {
+        return SelectedStoragePersistenceId.CLEAR_TEXT
     }
 
     private fun getSharedPrefsFor(filename: String): SharedPreferences {
         return appContext.getSharedPreferences(filename, Context.MODE_PRIVATE)
-    }
-
-    private fun getStoragePrefix(tag: String): String {
-        return "$STORAGE_BASE_ID.$tag"
-    }
-
-    private fun getPrimaryDataKey(tag: String): String {
-        return "$STORAGE_BASE_ID.$tag"
     }
 
     private fun createGson(): Gson {
@@ -129,9 +121,5 @@ public class KeyValueStorageClearTextSharedPreferences constructor(
             builder.registerTypeAdapterFactory(customGsonTypeAdapterFactory)
         }
         return builder.create()
-    }
-
-    private companion object {
-        private const val STORAGE_BASE_ID: String = "les_ct"
     }
 }
