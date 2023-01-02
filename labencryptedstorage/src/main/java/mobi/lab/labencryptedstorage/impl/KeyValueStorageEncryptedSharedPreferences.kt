@@ -142,11 +142,11 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
     private fun createOrGetMasterKey(): MasterKey {
         return MasterKey.Builder(appContext, STORAGE_MASTER_KEY_ALIAS)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .setRequestStrongBoxBacked(getFromPreferredType())
+            .setRequestStrongBoxBacked(getIsStrongBoxBackedFromEncryptionPreferredTypeValue())
             .build()
     }
 
-    private fun getFromPreferredType(): Boolean {
+    private fun getIsStrongBoxBackedFromEncryptionPreferredTypeValue(): Boolean {
         return when (encryptionPreferredTypeInternal) {
             EncryptionPreferredType.StrongBox -> true
             EncryptionPreferredType.Tee -> false
