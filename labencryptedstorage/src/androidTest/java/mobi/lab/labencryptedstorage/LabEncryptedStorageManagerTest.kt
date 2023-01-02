@@ -119,7 +119,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_if_storage_is_selected_then_test_failed_does_not_count() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .encryptionDeviceCompatibilityTester(deviceTesterThatThrows)
+            .encryptedStorageCompatibilityTester(deviceTesterThatThrows)
             .build()
         val implSpy = spy(impl)
         // KeyValueStorageEncryptedSharedPreferences is last selected
@@ -139,7 +139,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_if_storage_is_not_selected_then_test_failed_does_count() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .encryptionDeviceCompatibilityTester(deviceTesterThatThrows)
+            .encryptedStorageCompatibilityTester(deviceTesterThatThrows)
             .build()
         val implSpy = spy(impl)
         // Nothing selected
@@ -160,7 +160,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     public fun test_if_storage_is_not_selected_and_encrypted_storage_is_allowed_then_it_is_returned() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
             .encryptionEnabled(true)
-            .encryptionDeviceCompatibilityTester(deviceTesterThatSucceeds)
+            .encryptedStorageCompatibilityTester(deviceTesterThatSucceeds)
             .build()
         val implSpy = spy(impl)
         // Nothing selected
@@ -180,7 +180,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_device_does_not_support_encrypted_storage() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .encryptionDeviceCompatibilityTester(deviceTesterThatThrows)
+            .encryptedStorageCompatibilityTester(deviceTesterThatThrows)
             .build()
         assertFalse(
             impl.deviceSupportsEncryptedStorage(),
@@ -194,7 +194,7 @@ public class LabEncryptedStorageManagerTest : BaseTestCase() {
     @Test
     public fun test_device_does_support_encrypted_storage() {
         val impl = LabEncryptedStorageManager.Builder(getContextForTarget())
-            .encryptionDeviceCompatibilityTester(deviceTesterThatSucceeds)
+            .encryptedStorageCompatibilityTester(deviceTesterThatSucceeds)
             .build()
         assertTrue(impl.deviceSupportsEncryptedStorage(), "Device support encrypted storage when test succeeded!")
     }

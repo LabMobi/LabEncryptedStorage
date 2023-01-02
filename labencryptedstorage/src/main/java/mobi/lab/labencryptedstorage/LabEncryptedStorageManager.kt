@@ -195,7 +195,7 @@ public open class LabEncryptedStorageManager(
         private var encryptionEnabled: Boolean = true
         private var encryptionBlocklist: ArrayList<String> = arrayListOf()
         private var encryptionPreferredType: EncryptionPreferredType = EncryptionPreferredType.Tee
-        private var encryptionDeviceCompatibilityTester: EncryptedStorageCompatibilityTester =
+        private var encryptedStorageCompatibilityTester: EncryptedStorageCompatibilityTester =
             SimpleEncryptedStorageDeviceCompatibilityTester()
 
         /**
@@ -233,12 +233,12 @@ public open class LabEncryptedStorageManager(
          * Implementation for tester to test if the encrypted storage works on this given device.
          * Default: [SimpleEncryptedStorageDeviceCompatibilityTester].
          *
-         * @param encryptionDeviceCompatibilityTester Implementation for tester to test if the encrypted storage works on this given device
+         * @param encryptedStorageCompatibilityTester Implementation for tester to test if the encrypted storage works on this given device
          */
-        public fun encryptionDeviceCompatibilityTester(
-            encryptionDeviceCompatibilityTester: EncryptedStorageCompatibilityTester
+        public fun encryptedStorageCompatibilityTester(
+            encryptedStorageCompatibilityTester: EncryptedStorageCompatibilityTester
         ): Builder =
-            apply { this.encryptionDeviceCompatibilityTester = encryptionDeviceCompatibilityTester }
+            apply { this.encryptedStorageCompatibilityTester = encryptedStorageCompatibilityTester }
 
         /**
          * Build an instance of [LabEncryptedStorageManager].
@@ -255,7 +255,7 @@ public open class LabEncryptedStorageManager(
                     applicationContext.applicationContext,
                     encryptionPreferredType
                 ),
-                hardwareKeyStoreBasedEncryptedStorageCompatibilityTester = encryptionDeviceCompatibilityTester,
+                hardwareKeyStoreBasedEncryptedStorageCompatibilityTester = encryptedStorageCompatibilityTester,
             )
         }
     }
