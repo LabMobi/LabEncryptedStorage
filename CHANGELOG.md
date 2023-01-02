@@ -3,7 +3,8 @@
 
 ### Changed
 
-- Added an option to set a preferred hardware keystore type - TEE or StrongBox Keymaster. Before it always defaulted to TEE.
+- Breaking change: Added an option to set a preferred hardware keystore type - TEE or StrongBox Keymaster. Before it always defaulted to TEE.
+- Breaking change: Removed the file and key prefixes added by the library.
 
 ## [0.9.5] - 2022-12-27
 
