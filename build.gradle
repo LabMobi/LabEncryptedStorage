@@ -10,8 +10,8 @@ allprojects {
 ext {
     // Version name will be versionMajor.versionMinor.versionPatch
     versionMajor = 0
-    versionMinor = 9
-    versionPatch = 6
+    versionMinor = 10
+    versionPatch = 0
 }
 
 buildscript {
