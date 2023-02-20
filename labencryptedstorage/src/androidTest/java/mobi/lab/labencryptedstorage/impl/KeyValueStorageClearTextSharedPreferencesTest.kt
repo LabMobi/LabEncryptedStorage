@@ -1,14 +1,11 @@
 package mobi.lab.labencryptedstorage.impl
 
-import android.os.Bundle
 import com.google.gson.reflect.TypeToken
 import mobi.lab.labencryptedstorage.BaseTestCase
 import mobi.lab.labencryptedstorage.inter.KeyValueStorage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.Serializable
 import java.math.BigInteger
 
 /**
@@ -114,32 +111,5 @@ public open class KeyValueStorageClearTextSharedPreferencesTest : BaseTestCase()
         lib.delete(key)
         val arrayStored2: ArrayList<Pair<String, Int>>? = lib.read(key, object : TypeToken<ArrayList<Pair<String, Int>>>() {}.type)
         assertNull(arrayStored2)
-    }
-
-    /**
-     * Test storing a bundle with some basic primitives and with serializable.
-     */
-    @Test
-    public fun test_store_and_retrieve_bundle() {
-        val lib = createStorageImplementation()
-
-        val key = "test_key1"
-        val bundleOriginal = Bundle()
-        bundleOriginal.putString("String", "test")
-        bundleOriginal.putInt("Int", 42)
-        bundleOriginal.putBoolean("bool", true)
-        bundleOriginal.putSerializable("serial", Pair("123", "456"))
-
-        lib.store(key, bundleOriginal)
-        val bundleStored: Bundle = lib.read(key, object : TypeToken<Bundle>() {}.type)!!
-        assertEquals("test", bundleStored.getString("String"))
-        assertEquals(42, bundleStored.getInt("Int"))
-        assertTrue(bundleStored.getBoolean("bool"))
-        @Suppress("DEPRECATION")
-        val serial1: Serializable? = bundleStored.getSerializable("serial")
-        assertNull(serial1)
-
-        lib.delete(key)
-        assertNull(lib.read(key, object : TypeToken<Bundle?>() {}.type))
     }
 }

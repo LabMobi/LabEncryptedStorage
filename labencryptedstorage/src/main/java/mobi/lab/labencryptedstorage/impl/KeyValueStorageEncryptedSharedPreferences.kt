@@ -16,8 +16,6 @@ import mobi.lab.labencryptedstorage.entity.EncryptionPreferredType
 import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
 import mobi.lab.labencryptedstorage.entity.SelectedStoragePersistenceId
 import mobi.lab.labencryptedstorage.inter.KeyValueEncryptedStorage
-import mobi.lab.labencryptedstorage.internal.BundleTypeAdapterFactory
-import mobi.lab.labencryptedstorage.internal.exhaustive
 import java.lang.reflect.Type
 
 /**
@@ -25,12 +23,12 @@ import java.lang.reflect.Type
  *
  * @property appContext Application context
  * @property customGsonTypeAdapterFactories Custom Gson adapter factories to use during serialization and deserialization.
- * By default uses [BundleTypeAdapterFactory].
+ * By default uses no custom factories.
  */
 public class KeyValueStorageEncryptedSharedPreferences constructor(
     private val appContext: Context,
     private var encryptionPreferredTypeInternal: EncryptionPreferredType = EncryptionPreferredType.Tee,
-    private val customGsonTypeAdapterFactories: Array<TypeAdapterFactory> = arrayOf(BundleTypeAdapterFactory())
+    private val customGsonTypeAdapterFactories: Array<TypeAdapterFactory> = arrayOf()
 ) : KeyValueEncryptedStorage {
     private val gson: Gson
 
@@ -124,7 +122,7 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
         return when (encryptionPreferredTypeInternal) {
             EncryptionPreferredType.StrongBox -> SelectedStoragePersistenceId.ENCRYPTED_STRONG_BOX_PREFERRED
             EncryptionPreferredType.Tee -> SelectedStoragePersistenceId.ENCRYPTED_TEE_PREFERRED
-        }.exhaustive
+        }
     }
 
     private fun getEncryptedSharedPreferencesFor(filename: String): SharedPreferences {
@@ -150,7 +148,7 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
         return when (encryptionPreferredTypeInternal) {
             EncryptionPreferredType.StrongBox -> true
             EncryptionPreferredType.Tee -> false
-        }.exhaustive
+        }
     }
 
     private fun createGson(): Gson {
