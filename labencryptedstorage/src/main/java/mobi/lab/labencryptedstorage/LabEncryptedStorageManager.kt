@@ -15,7 +15,6 @@ import mobi.lab.labencryptedstorage.inter.KeyValueClearTextStorage
 import mobi.lab.labencryptedstorage.inter.KeyValueEncryptedStorage
 import mobi.lab.labencryptedstorage.inter.KeyValueStorage
 import mobi.lab.labencryptedstorage.inter.LabEncryptedStorageManagerInterface
-import mobi.lab.labencryptedstorage.internal.exhaustive
 
 /**
  * Storage manager instance.
@@ -169,7 +168,7 @@ public open class LabEncryptedStorageManager(
                         EncryptionPreferredType.StrongBox
                     )
                 }
-            }.exhaustive
+            }
         } else {
             null
         }

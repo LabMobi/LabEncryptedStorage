@@ -1,4 +1,11 @@
 # Changelog
+# Changelog
+## [0.10.0] - 2023-02-21
+
+### Changed
+
+- Breaking change: Removed the incomplete built-in support for storing Android Bundles.
+
 ## [0.9.6] - 2022-12-29
 
 ### Changed

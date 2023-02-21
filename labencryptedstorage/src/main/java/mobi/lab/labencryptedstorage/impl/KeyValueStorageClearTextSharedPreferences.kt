@@ -13,7 +13,6 @@ import mobi.lab.labencryptedstorage.R
 import mobi.lab.labencryptedstorage.entity.KeyValueStorageException
 import mobi.lab.labencryptedstorage.entity.SelectedStoragePersistenceId
 import mobi.lab.labencryptedstorage.inter.KeyValueClearTextStorage
-import mobi.lab.labencryptedstorage.internal.BundleTypeAdapterFactory
 import java.lang.reflect.Type
 
 /**
@@ -21,11 +20,11 @@ import java.lang.reflect.Type
  *
  * @property appContext Application context
  * @property customGsonTypeAdapterFactories Custom Gson adapter factories to use during serialization and deserialization.
- * By default uses [BundleTypeAdapterFactory].
+ * By default uses no custom factories.
  */
 public class KeyValueStorageClearTextSharedPreferences constructor(
     private val appContext: Context,
-    private val customGsonTypeAdapterFactories: Array<TypeAdapterFactory> = arrayOf(BundleTypeAdapterFactory())
+    private val customGsonTypeAdapterFactories: Array<TypeAdapterFactory> = arrayOf()
 ) : KeyValueClearTextStorage {
     private val gson: Gson
 
