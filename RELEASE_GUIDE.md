@@ -78,7 +78,7 @@ git push
 
 5) Start the publish build ("Publish builds") at Codemagic CI from the `main` branch, make sure it built fine and everything is in green.
 
-6) Open up  https://s01.oss.sonatype.org/, navigate to the Staging repositories, check the published repository there. 
+6) Open up  https://s01.oss.sonatype.org/, navigate to Build Promotion -> Staging repositories, check the published repository there. 
 
 - There should be a repository with the same version number
 - Download the `labencryptedstorage-X.Y.Z.aar` artifact from there, make sure it is ok. 
