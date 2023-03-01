@@ -2,7 +2,7 @@ Mobi Lab / We make robots talk to humans
 
 # Lab Encrypted Storage
 
-NOTE: Get the latest version number from: https://central.sonatype.dev/namespace/mobi.lab.labencryptedstorage
+NOTE: Get the latest version number from: https://central.sonatype.com/search?q=mobi.lab.labencryptedstorage
 
 Encrypted key-value storage library for Android. Uses Google's [EncryptedSharedPreferences](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences) and [SharedPreferences](https://developer.android.com/training/data-storage/shared-preferences) as the backing storage in synchronous mode.
 
@@ -13,7 +13,7 @@ Main benefits of `LabEncryptedStorage` over using Google's `SharedPreferences` d
 - Uses synchronous storage - every operation either succeeds or throws immediately. Useful in cases where data must be stored, or failure must be known immediately. 
 - Reduces risks of directly depending on Google's alpha/beta level libraries like `EncryptedSharedPreferences`. Useful for libraries with extended code freezes or certified binaries.
 
-NOTE: The library uses Gson for serializing and deserializing DTOs. In the future this may become customizable.
+NOTE: The library uses Gson for serialising and deserialising DTOs. In the future, this may become customisable.
 
 ## Requirements
 
@@ -48,9 +48,9 @@ And then use the manager to select the storage implementation:
  val storage: KeyValueStorage = manager.getOrSelectStorage()
 ```
 
-This two things you only need to do once during app runtime. For example, in you dependency injection logic or Application object. After that you can use the `KeyValueStorage` instance multiple times.
+These two things you only need to do once during app runtime. For example, in your dependency injection logic or Application object. After that, you can use the `KeyValueStorage` instance multiple times.
 
-Now with the `KeyValueStorage` you can use the storage.
+Now with the `KeyValueStorage`, you can use the storage.
 
 ```kotlin
 val key1 = "key1"
@@ -66,17 +66,17 @@ val value1b = storage.read<String>(key1, String::class.java)
 storage.delete(key1)
 ```
 
-NOTE: Do not use it directly from UI thread.
+NOTE: Do not use it directly from the UI thread.
 
-NOTE: If the storage operation fails then `KeyValueStorageException` will be thrown!
+NOTE: If the storage operation fails, then `KeyValueStorageException` will be thrown!
 
 ## Known Issues and considerations
 
-### R8 / ProGuard minimization and obfuscation
+### R8 minimisation and obfuscation
 
-Make sure R8 / ProGuard keeps (at minimum) the original class field names for the DTOs you store using the library. Otherwise reading from storage will fail if the names change. If you use Gson annotations then keep these also.
+Ensure R8 keeps (at minimum) the original class field names for the DTOs you store using the library. Otherwise, reading from storage will fail if the names change. If you use Gson annotations, then keep these also.
 
-You way want to keep the classes fully intact and also keep GSON annotations as follows:
+You may want to keep the classes fully intact and also keep GSON annotations as follows:
 
 ```properties
 # Keep my DTOs (keeps all classes under ..dto.)
@@ -90,15 +90,15 @@ You way want to keep the classes fully intact and also keep GSON annotations as 
 # GSON
 ```
 
-### Not the best way to store Android Bundle objects
+### Not a way to store Android Bundle objects
 
-When storing an Android bundle the library will only be able to support a few primitives like Strings, Booleans, Integers, .. - see the `BundleTypeAdapterFactory.java`.
+Storing Android bundle objects is not supported. If you want to, you can attempt to add it for simple primitives by adding your own Custom Gson adapter factory. But be aware that supporting more complicated objects is not feasible.
 
 #### Be careful with automatic backup when using encrypted storage
 
-Most likely you will want to disable backups entirely. You can do this via your application's Android Manifest.
+Most likely, you will want to disable backups entirely. You can do this via your application's Android Manifest.
 
-In the Manifest you want to define the following configuration:
+In the Manifest, you want to define the following configuration:
 
 ```xml
 <application
@@ -152,7 +152,7 @@ dependencies {
 }
 ```
 
-The artifact is available in Maven Central, make sure you add the repository definition:
+The artifact is available in Maven Central. Make sure you add the repository definition:
 
 ```groovy
 repositories {
@@ -176,7 +176,7 @@ Code linters (Detekt, ktlint) can also be run separately via:
 .\gradlew checkCode
 ```
 
-NOTE: This skips the Android Lint as that takes a long time to run and rarely has something to say.
+NOTE: This skips the Android, which takes a long time to run and rarely has something to say.
 
 ## Running instrumentation tests
 
