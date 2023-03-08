@@ -1,5 +1,7 @@
 Mobi Lab / We make robots talk to humans
 
+<img src="img\mobilab-header-logo.png" style="zoom:25%;" />
+
 # Lab Encrypted Storage
 
 NOTE: Get the latest version number from: https://central.sonatype.com/search?q=mobi.lab.labencryptedstorage
