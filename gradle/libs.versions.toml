@@ -20,7 +20,7 @@ gradle-plugin-gradleversions = 'com.github.ben-manes:gradle-versions-plugin:0.46
 gradle-plugin-detekt = 'io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.22.0'
 
 # Language
-kotlin = { module = 'org.jetbrains.kotlin:kotlin-stdlib-jdk7', version.ref = 'kotlin' }
+kotlin = { module = 'org.jetbrains.kotlin:kotlin-stdlib', version.ref = 'kotlin' }
 
 # Crypto
 androidx-security-crypto = 'androidx.security:security-crypto:1.1.0-alpha06'
