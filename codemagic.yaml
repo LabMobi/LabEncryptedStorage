@@ -66,6 +66,8 @@ definitions:
 workflows:
   release-builds:
     name: Release builds for verification (main branch only)
+    environment:
+      java: 17
     scripts:
       - name: Check 'main' branch
         script: if [ "$FCI_BRANCH" != "main" ]; then exit 1; fi
@@ -82,6 +84,7 @@ workflows:
   publish-builds:
     name: Publish to Maven builds (main branch only)
     environment:
+      java: 17
       groups:
         - publishing_props
     scripts:
@@ -97,6 +100,8 @@ workflows:
     artifacts: *androidArtifacts
   develop-builds:
     name: Development builds
+    environment:
+      java: 17
     triggering:
       events:
         - push
@@ -118,6 +123,8 @@ workflows:
         recipients: *debugEmails
   merge-requests:
     name: Merge requests
+    environment:
+      java: 17
     triggering:
       events:
         - pull_request
