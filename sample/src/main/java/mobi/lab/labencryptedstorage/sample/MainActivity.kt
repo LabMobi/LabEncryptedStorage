@@ -60,7 +60,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun testReadWrite(storage: KeyValueStorage): String {
-
         val key1 = "key1"
         val value1 = "value1"
 

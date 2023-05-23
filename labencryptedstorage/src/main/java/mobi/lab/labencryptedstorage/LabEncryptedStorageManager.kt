@@ -5,8 +5,8 @@ import android.os.Build
 import androidx.annotation.VisibleForTesting
 import com.google.gson.reflect.TypeToken
 import mobi.lab.labencryptedstorage.LabEncryptedStorageManager.Builder
-import mobi.lab.labencryptedstorage.entity.SelectedStoragePersistenceId
 import mobi.lab.labencryptedstorage.entity.EncryptionPreferredType
+import mobi.lab.labencryptedstorage.entity.SelectedStoragePersistenceId
 import mobi.lab.labencryptedstorage.impl.KeyValueStorageClearTextSharedPreferences
 import mobi.lab.labencryptedstorage.impl.KeyValueStorageEncryptedSharedPreferences
 import mobi.lab.labencryptedstorage.impl.SimpleEncryptedStorageDeviceCompatibilityTester

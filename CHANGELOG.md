@@ -1,5 +1,10 @@
 # Changelog
-# Changelog
+## [0.10.1] - 2023-05-23
+
+### Changed
+
+- Updated dependency versions. Jetpack Security Crypto dependency version updated to 1.1.0-alpha06.
+ 
 ## [0.10.0] - 2023-02-21
 
 ### Changed
