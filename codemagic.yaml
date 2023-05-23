@@ -66,6 +66,7 @@ definitions:
 workflows:
   release-builds:
     name: Release builds for verification (main branch only)
+    instance_type: linux_x2
     environment:
       java: 17
     scripts:
@@ -83,6 +84,7 @@ workflows:
     artifacts: *androidArtifacts
   publish-builds:
     name: Publish to Maven builds (main branch only)
+    instance_type: linux_x2
     environment:
       java: 17
       groups:
@@ -100,6 +102,7 @@ workflows:
     artifacts: *androidArtifacts
   develop-builds:
     name: Development builds
+    instance_type: linux_x2
     environment:
       java: 17
     triggering:
@@ -123,6 +126,7 @@ workflows:
         recipients: *debugEmails
   merge-requests:
     name: Merge requests
+    instance_type: linux_x2
     environment:
       java: 17
     triggering:
