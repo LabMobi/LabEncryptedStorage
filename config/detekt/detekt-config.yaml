@@ -13,7 +13,8 @@ style:
   ReturnCount:
     active: true
     max: 3 # The original of 2 is too strict here
-    excludedFunctions: 'equals'
+    excludedFunctions:
+      - 'equals'
     excludeLabeled: true # Exclude labeled returns
     excludeReturnFromLambda: true
     excludeGuardClauses: true # Exclude null guards

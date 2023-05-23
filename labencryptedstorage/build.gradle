@@ -50,6 +50,8 @@ android {
     }
 
     kotlinOptions {
+        jvmTarget = "1.8"
+
         // For Kotlin API strict mode.
         // In the future we should be able to do it easier.
         // When https://youtrack.jetbrains.com/issue/KT-37652 is fixed
@@ -66,12 +68,20 @@ android {
 }
 
 dependencies {
-    deps.addUnitTestDependencies(it)
-    deps.addInstrumentationTestDependencies(it)
-
     implementation libs.kotlin
     implementation libs.gson
     implementation libs.androidx.security.crypto
+
+    testImplementation libs.test.junit
+    testImplementation libs.test.junit.kotlin
+
+    androidTestImplementation libs.test.junit
+    androidTestImplementation libs.test.junit.kotlin
+    androidTestImplementation libs.test.androidx.junit // Junit runner
+    androidTestImplementation libs.test.androidx.testrunner
+    androidTestImplementation libs.test.espresso.core
+    androidTestImplementation libs.test.mockito.android
+    androidTestImplementation libs.test.mockito.kotlin
 }
 
 def GROUP_CI_BUILD_TASKS = 'Build'
