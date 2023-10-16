@@ -6,7 +6,7 @@ Note: Every time you notice something in this guide is out-of-date or incorrect 
 
 ## Links
 
-- Scrolls on GitHub: https://github.com/LabMobi/LabEncryptedStorage
+- Lab Encrypted Storage on GitHub: https://github.com/LabMobi/LabEncryptedStorage
 - Sonatype OSSRH Nexus UI: [https://s01.oss.sonatype.org](https://s01.oss.sonatype.org/)
 - Artifacts on Maven Central: https://repo1.maven.org/maven2/mobi/lab/labencryptedstorage/labencryptedstorage/ (can take some time)
   - Artifacts on Sonatype OSSRH: https://s01.oss.sonatype.org/content/groups/public/mobi/lab/labencryptedstorage/labencryptedstorage/ (available right away after publishing)
