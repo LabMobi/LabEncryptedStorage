@@ -59,25 +59,16 @@ public class KeyValueStorageEncryptedSharedPreferences constructor(
         try {
             // Get a copy of the old data
             val oldDataJson = pref.getString(key, null)
-            val success: Boolean = try {
-                // Write the new one to storage it to storage
-                pref.edit().putString(key, dataJson).commit()
-            } catch (e: Throwable) {
-                false
-            }
-            if (!success) {
-                // Restore the memory cache value to the old one
-                try {
-                    pref.edit().putString(key, oldDataJson).commit()
-                } catch (e: Throwable) {
-                    // Ignore any and all errors from there
-                }
-                throw KeyValueStorageException.StoreException(appContext.getString(R.string.error_store_generic_1))
-            }
+            pref.commitForResult(key, dataJson)
+                .onFailure { pref.commitForResult(key, oldDataJson) }
+                .getOrThrow()
         } catch (e: Throwable) {
             throw KeyValueStorageException.StoreException(appContext.getString(R.string.error_store_generic_1), e)
         }
     }
+
+    private fun SharedPreferences.commitForResult(key: String, value: String?): Result<Boolean> =
+        runCatching { edit().putString(key, value).commit() }
 
     @Suppress("SwallowedException")
     override fun <T> read(key: String, valueType: Type): T? {
