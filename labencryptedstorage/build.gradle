@@ -96,7 +96,7 @@ build.mustRunAfter clean
 
 task buildAndPublishRelease(dependsOn: ['buildAll', 'publish'])
 buildAndPublishRelease.group = GROUP_CI_BUILD_TASKS
-buildAndPublishRelease.description = "Build Scrolls library release version and publish it"
+buildAndPublishRelease.description = "Build the library release version and publish it"
 
 publish.mustRunAfter tasks.findByPath('buildAll')
 
