@@ -11,7 +11,7 @@ ext {
     // Version name will be versionMajor.versionMinor.versionPatch
     versionMajor = 0
     versionMinor = 10
-    versionPatch = 2
+    versionPatch = 3
 }
 
 buildscript {
