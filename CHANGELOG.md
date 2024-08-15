@@ -1,4 +1,13 @@
 # Changelog
+
+## [0.10.2] - 2024-08-15
+
+### Changed
+- Updated the storage operation so that if the commit() throws the root cause is propagated to the caller. Pull request contributed by Gennadi Kudrjavtsev (https://github.com/ydanneg)
+- Updated target and compile SDK versions to 34
+- Updated dependency versions for the build script and sample app
+
+
 ## [0.10.1] - 2023-05-23
 
 ### Changed

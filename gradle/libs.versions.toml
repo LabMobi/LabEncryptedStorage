@@ -1,23 +1,23 @@
 [versions]
 
 android-sdk-min = '21'
-android-sdk-target = '33'
-android-sdk-compile = 'android-33'
+android-sdk-target = '34'
+android-sdk-compile = 'android-34'
 
-kotlin = '1.8.21'
+kotlin = '2.0.0'
 
 [libraries]
 
 # RxJava
-rxjava = 'io.reactivex.rxjava3:rxjava:3.1.6'
+rxjava = 'io.reactivex.rxjava3:rxjava:3.1.8'
 rxjava-android = 'io.reactivex.rxjava3:rxandroid:3.0.2'
 
 # Gradle plugin
-gradle-plugin-android = 'com.android.tools.build:gradle:8.0.1'
+gradle-plugin-android = 'com.android.tools.build:gradle:8.4.2'
 gradle-plugin-kotlin = { module = 'org.jetbrains.kotlin:kotlin-gradle-plugin', version.ref = 'kotlin' }
-gradle-plugin-ktlint = 'org.jlleitschuh.gradle:ktlint-gradle:11.3.2'
-gradle-plugin-gradleversions = 'com.github.ben-manes:gradle-versions-plugin:0.46.0'
-gradle-plugin-detekt = 'io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.22.0'
+gradle-plugin-ktlint = 'org.jlleitschuh.gradle:ktlint-gradle:12.1.1'
+gradle-plugin-gradleversions = 'com.github.ben-manes:gradle-versions-plugin:0.51.0'
+gradle-plugin-detekt = 'io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.23.6'
 
 # Language
 kotlin = { module = 'org.jetbrains.kotlin:kotlin-stdlib', version.ref = 'kotlin' }
@@ -26,14 +26,14 @@ kotlin = { module = 'org.jetbrains.kotlin:kotlin-stdlib', version.ref = 'kotlin'
 androidx-security-crypto = 'androidx.security:security-crypto:1.1.0-alpha06'
 
 # Others
-androidx-appcompat = 'androidx.appcompat:appcompat:1.6.1'
+androidx-appcompat = 'androidx.appcompat:appcompat:1.7.0'
 gson = 'com.google.code.gson:gson:2.10.1'
 
 # Testing
 test-junit = 'junit:junit:4.13.2'
 test-junit-kotlin = { module = 'org.jetbrains.kotlin:kotlin-test-junit', version.ref = 'kotlin' }
-test-androidx-junit = 'androidx.test.ext:junit:1.1.5'
-test-androidx-testrunner = 'androidx.test:runner:1.5.2'
-test-espresso-core = 'androidx.test.espresso:espresso-core:3.5.1'
+test-androidx-junit = 'androidx.test.ext:junit:1.2.1'
+test-androidx-testrunner = 'androidx.test:runner:1.6.1'
+test-espresso-core = 'androidx.test.espresso:espresso-core:3.6.1'
 test-mockito-kotlin = "org.mockito.kotlin:mockito-kotlin:4.1.0"
-test-mockito-android = "org.mockito:mockito-android:5.3.1"
+test-mockito-android = "org.mockito:mockito-android:5.12.0"
