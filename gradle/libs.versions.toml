@@ -4,7 +4,7 @@ android-sdk-min = '21'
 android-sdk-target = '34'
 android-sdk-compile = 'android-34'
 
-kotlin = '2.0.0'
+kotlin = '1.8.21'
 
 [libraries]
 
