@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.10.3] - 2024-08-19
+
+### Changed
+- Reverted the version of Kotlin used to build the library back to 1.8.21
+
 ## [0.10.2] - 2024-08-15
 
 ### Changed
