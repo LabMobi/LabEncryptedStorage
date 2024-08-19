@@ -93,24 +93,14 @@ git push
 - NOTE: Depending in the time of day this can take some time (wait up to 1h and then complain under the original JIRA issue)
 
 8. Create a new release tag in GitHub as follows:
-   - Open up the GitHub release page at https://github.com/MobiSolutions/scrolls-android/releases, create a new release `vX.Y.Z`. Don't write an additional changelog there, just link to the changelog document.
+   - Open up the GitHub release page at https://github.com/LabMobi/LabEncryptedStorage/releases, create a new release `X.Y.Z`. Don't write an additional changelog there, just link to the changelog document.
+     - Also create a tag "release-X.Y.Z"
 
 9) OPTIONAL: Update the library in at least one of the projects using it to make sure everything is in order.
 
 ## Post-release actions
 
-1. Create and push a release tag to the repository
-
-   ```bash
-   git checkout main 
-   git pull 
-   git tag release-X.Y.Z # <- Substitute the current version here 
-   git push origin release-X.Y.Z # <- Substitute the current version here
-   ```
-
-   
-
-2. In the `develop` branch update the library version code to a new version so the `develop` branch code and the released code does not have a matching version.
+1. In the `develop` branch update the library version code to a new version so the `develop` branch code and the released code does not have a matching version.
 
 ```
 git checkout develop 
