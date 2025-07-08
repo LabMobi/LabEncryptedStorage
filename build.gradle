@@ -15,6 +15,8 @@ ext {
 }
 
 buildscript {
+    ext.vanniktech = '0.33.0'
+
     repositories {
         google()
         mavenCentral()
@@ -29,6 +31,7 @@ buildscript {
         classpath libs.gradle.plugin.ktlint
         classpath libs.gradle.plugin.gradleversions
         classpath libs.gradle.plugin.detekt
+        classpath "com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin:$vanniktech"
     }
 }
 

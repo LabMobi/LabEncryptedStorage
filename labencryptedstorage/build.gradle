@@ -10,10 +10,10 @@ buildscript {
     }
 }
 
-apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.vanniktech.maven.publish'
 
 
 android {
@@ -58,13 +58,6 @@ android {
         // then we can use the module annotation to enable this instead of the compiler flag.
         freeCompilerArgs += '-Xexplicit-api=strict'
     }
-
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-            // withJavadocJar()
-        }
-    }
 }
 
 dependencies {
@@ -84,81 +77,63 @@ dependencies {
     androidTestImplementation libs.test.mockito.kotlin
 }
 
+mavenPublishing {
+    // the first parameter represents which variant is published
+    // the second whether to publish a sources jar
+    // the third whether to publish a javadoc jar
+    //configure(new AndroidSingleVariantLibrary("release", true, true))
+
+    // false - manual release required via https://central.sonatype.com/publishing/deployments
+    publishToMavenCentral(false)
+
+    signAllPublications()
+
+    coordinates("mobi.lab.labencryptedstorage", "labencryptedstorage", "$versionMajor.$versionMinor.$versionPatch")
+
+    pom {
+        name = "Lab Encrypted Storage library."
+        description = "Encrypted key-value storage library for Android. Uses Google\'s EncryptedSharedPreferences and SharedPreferences as the backing storage in synchronous mode."
+        inceptionYear = "2022"
+        url = "https://github.com/LabMobi/LabEncryptedStorage"
+        licenses {
+            license {
+                name = "The MIT License"
+                url = "https://opensource.org/licenses/mit-license.php"
+                distribution = "https://opensource.org/licenses/mit-license.php"
+            }
+        }
+        developers {
+            developer {
+                id = "android@lab.mobi"
+                name = "Mobi Lab"
+                url = "https://lab.mobi"
+            }
+        }
+        scm {
+            connection = 'https://github.com/LabMobi/LabEncryptedStorage.git'
+            developerConnection = 'https://github.com/LabMobi/LabEncryptedStorage.git'
+            url = 'https://github.com/LabMobi/LabEncryptedStorage'
+        }
+    }
+}
+
 def GROUP_CI_BUILD_TASKS = 'Build'
-task buildAll(dependsOn: [
-        'clean',
-        ':sample:build',
-        'build'
-])
+tasks.register('buildAll') {
+    group = GROUP_CI_BUILD_TASKS
+    description = "Build the debug version of components lib"
+    dependsOn 'clean', ':sample:build', 'build'
+}
+
+
 buildAll.group = GROUP_CI_BUILD_TASKS
 buildAll.description = 'Build the library and the sample application'
 build.mustRunAfter clean
 
-task buildAndPublishRelease(dependsOn: ['buildAll', 'publish'])
-buildAndPublishRelease.group = GROUP_CI_BUILD_TASKS
-buildAndPublishRelease.description = "Build the library release version and publish it"
-
-publish.mustRunAfter tasks.findByPath('buildAll')
-
-Properties properties = new Properties()
-try {
-    properties.load(project.rootProject.file('publish.properties').newDataInputStream())
-} catch (Exception ignored) {
-    println "publish.properties missing"
+tasks.register('buildAndPublishRelease') {
+    group = "Publish"
+    description = "Build the library release version and publish it"
+    dependsOn "buildAll", "checkCode", "publishToMavenCentral"
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                groupId = 'mobi.lab.labencryptedstorage'
-                artifactId = 'labencryptedstorage'
-                from components.release
-                pom {
-                    packaging = 'aar'
-                    name = 'Lab Encrypted Storage library.'
-                    description = 'Encrypted key-value storage library for Android. Uses Google\'s EncryptedSharedPreferences and SharedPreferences as the backing storage in synchronous mode.'
-                    url = 'https://github.com/LabMobi/LabEncryptedStorage'
-
-                    licenses {
-                        license {
-                            name = 'The MIT License'
-                            url = 'https://opensource.org/licenses/mit-license.php'
-                        }
-                    }
-                    developers {
-                        developer {
-                            name = properties.getProperty("publish_developer_name")
-                            name = properties.getProperty("publish_developer_name")
-                            email = properties.getProperty("publish_developer_email")
-                            organization = properties.getProperty("publish_developer_organization")
-                            organizationUrl = properties.getProperty("publish_developer_organization_url")
-                        }
-                    }
-                    scm {
-                        connection = 'https://github.com/LabMobi/LabEncryptedStorage.git'
-                        developerConnection = 'https://github.com/LabMobi/LabEncryptedStorage.git'
-                        url = 'https://github.com/LabMobi/LabEncryptedStorage'
-                    }
-                }
-            }
-        }
-        repositories {
-            maven {
-                name = "ossrh-staging-api"
-                url = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
-                credentials {
-                    username = properties.getProperty("publish_ossrh_username")
-                    password = properties.getProperty("publish_ossrh_password")
-                }
-            }
-        }
-    }
-
-    signing {
-        def signingKey = properties.getProperty("signing_key")
-        def signingPassword = properties.getProperty("signing_password")
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        sign publishing.publications
-    }
-}
+publishToMavenCentral.mustRunAfter tasks.named('buildAll').get()
+publishToMavenCentral.mustRunAfter tasks.checkCode
